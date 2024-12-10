@@ -1,0 +1,34 @@
+<!-- fragments/sidebar.html -->
+<nav
+  th:fragment="sidebar"
+  id="sidebar"
+  class="col-md-3 col-lg-2 d-md-block bg-light sidebar border-end"
+  style="height: 100vh; position: fixed; padding: 1rem"
+>
+  <div class="position-sticky">
+    <!-- Sidebar Title -->
+
+    <!-- Navigation Links -->
+    <ul class="nav flex-column mb-4">
+      <li class="nav-item">
+        <a class="nav-link active" th:href="@{/}">
+          <i class="bi bi-speedometer2 me-2"></i> Dashboard
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" th:href="@{/groupes}">
+          <i class="bi bi-people-fill me-2"></i> Groupe
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" th:href="@{/groupes/valide}">
+          <i class="bi bi-people-fill me-2"></i> validated Group
+        </a>
+      </li>
+    </ul>
+
+    <div th:if="${filters != null}">
+      <div th:insert="${filters}"></div>
+    </div>
+  </div>
+</nav>

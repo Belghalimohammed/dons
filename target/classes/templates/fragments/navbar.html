@@ -1,0 +1,20 @@
+<!-- fragments/navbar.html -->
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">MyApp</a>
+    <ul class="navbar-nav ms-auto">
+      <li class="nav-item">
+        <a class="nav-link" th:href="@{/}">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" th:href="@{/annonces/mes-annonces}">mes annonces</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" th:href="@{/messages}">mes messages</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" th:href="@{/contact}">Contact</a>
+      </li>
+    </ul>
+  </div>
+</nav>

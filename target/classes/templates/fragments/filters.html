@@ -1,0 +1,135 @@
+<!-- Filters Section -->
+<div class="mb-4">
+  <h5 class="text-secondary">Filters</h5>
+  <form action="/recherches/save" method="get">
+    <div class="mb-3">
+      <input
+        type="text"
+        name="search"
+        class="form-control me-2"
+        placeholder="Search here..."
+        aria-label="Search"
+        th:value="${search}"
+      />
+    </div>
+    <div class="mb-3">
+      <input
+        type="text"
+        name="zone"
+        class="form-control"
+        placeholder="Entrer une zone géo ..."
+        aria-label="Search"
+        th:value="${zone}"
+      />
+    </div>
+
+    <!-- Checkbox Filters -->
+    <div class="mb-3">
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          name="neuf"
+          value="true"
+          id="neuf"
+          th:checked="${neuf}"
+        />
+        <label class="form-check-label" for="neuf">Neuf</label>
+      </div>
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          name="commeNeuf"
+          value="true"
+          id="commeNeuf"
+          th:checked="${commeNeuf}"
+        />
+        <label class="form-check-label" for="commeNeuf">Comme Neuf</label>
+      </div>
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          name="tresBonEtat"
+          value="true"
+          id="tresBonEtat"
+          th:checked="${tresBonEtat}"
+        />
+        <label class="form-check-label" for="tresBonEtat">Très Bon État</label>
+      </div>
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          name="bonEtat"
+          value="true"
+          id="bonEtat"
+          th:checked="${bonEtat}"
+        />
+        <label class="form-check-label" for="bonEtat">Bon État</label>
+      </div>
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          name="etatCorrect"
+          value="true"
+          id="etatCorrect"
+          th:checked="${etatCorrect}"
+        />
+        <label class="form-check-label" for="etatCorrect">État Correct</label>
+      </div>
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          name="occasion"
+          value="true"
+          id="occasion"
+          th:checked="${occasion}"
+        />
+        <label class="form-check-label" for="occasion">Occasion</label>
+      </div>
+    </div>
+
+    <!-- Filter and Clear Buttons -->
+    <div class="d-flex justify-content-between">
+      <button type="submit" class="btn btn-primary">
+        <i class="bi bi-filter-circle"></i> Filtrer
+      </button>
+      <a href="/recherches/clearFilters" class="btn btn-outline-secondary">
+        <i class="bi bi-x-circle"></i> Clear Filters
+      </a>
+    </div>
+  </form>
+</div>
+
+<!-- Add Keyword Form -->
+<div class="mb-4">
+  <h5 class="text-secondary">Add Keyword</h5>
+  <form
+    th:action="@{/recherches/addkeywordfilter}"
+    method="post"
+    class="d-flex mb-3"
+  >
+    <input
+      type="text"
+      name="key"
+      class="form-control me-2"
+      placeholder="Ajouter un mot clé"
+      aria-label="Search"
+      required
+    />
+    <button type="submit" class="btn btn-primary">
+      <i class="bi bi-plus-circle"></i>
+    </button>
+  </form>
+
+  <!-- Keywords List -->
+  <ul class="list-group">
+    <th:block th:each="item : ${items}">
+      <li class="list-group-item" th:text="${item}"></li>
+    </th:block>
+  </ul>
+</div>

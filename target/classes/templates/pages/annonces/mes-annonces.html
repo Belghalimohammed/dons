@@ -1,0 +1,56 @@
+<form th:action="@{/annonces/add}" method="get">
+  <button type="submit" class="btn btn-primary">Add Annonce</button>
+</form>
+
+<div th:if="${annonces}" class="cards-container" style="margin-top: 10px">
+  <div class="card" th:each="annonce : ${annonces}">
+    <div class="container">
+      <h2><b th:text="${annonce.titre}"></b></h2>
+      ( <b th:text="${annonce.vendeur.username}"></b> )
+      <p th:text="${annonce.description}"></p>
+      <ul>
+        <li th:each="keyword : ${annonce.keywords}" th:text="${keyword}"></li>
+      </ul>
+      <!--      <form th:action="@{/api/groupes}" method="post">-->
+      <!--        <input type="hidden" name="annonceId" th:value="${annonce.id}" />-->
+      <!--        <button type="submit" value="add to group" class="btn btn-info" style="border: none;">add to group</button>-->
+      <!--      </form>-->
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Make sure the cards container takes up the full width */
+  .cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* Adjust spacing between cards */
+  }
+
+  .card {
+    width: calc(
+      50% - 10px
+    ); /* Adjust to take half of the container width minus some margin */
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  /* On mouse-over, add a deeper shadow */
+  .card:hover {
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+  }
+
+  /* Add some padding inside the card container */
+  .container {
+    padding: 2px 16px;
+  }
+
+  /* Media query for smaller screens */
+  @media (max-width: 768px) {
+    .card {
+      width: calc(100% - 20px); /* Full width on small screens */
+    }
+  }
+</style>

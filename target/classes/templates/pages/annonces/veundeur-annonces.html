@@ -1,0 +1,40 @@
+<div class="container mt-5">
+  <h1 class="mb-4">
+    Annonces du vendeur :
+    <span th:text="${annonces[0].vendeur.username}"></span>
+  </h1>
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Titre</th>
+        <th>Description</th>
+        <th>État</th>
+        <th>Zone</th>
+        <th>Type de don</th>
+        <th>Mots-clés</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr th:each="annonce : ${annonces}">
+        <td th:text="${annonce.id}"></td>
+        <td th:text="${annonce.titre}"></td>
+        <td th:text="${annonce.description}"></td>
+        <td th:text="${annonce.etatObjet}"></td>
+        <td th:text="${annonce.zone}"></td>
+        <td th:text="${annonce.typeDon ? 'Oui' : 'Non'}"></td>
+        <td>
+          <ul>
+            <li
+              th:each="keyword : ${annonce.keywords}"
+              th:text="${keyword}"
+            ></li>
+          </ul>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <a href="/" class="btn btn-primary mt-3">Retour à l'accueil</a>
+</div>

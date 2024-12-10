@@ -1,0 +1,140 @@
+<a href="/annonces/add" class="btn btn-primary">Add Annonce</a>
+
+<div th:if="${annonces}" class="cards-container" style="margin-top: 10px">
+  <div class="card" th:each="annonce : ${annonces}">
+    <div class="container">
+      <a th:href="@{/annonces/{id}(id=${annonce.id})}" style="color: black">
+        <h2><b th:text="${annonce.titre}"></b></h2>
+      </a>
+
+      (
+      <a
+        th:href="@{/annonces/vendeur/{id}(id=${annonce.vendeur.id})}"
+        th:text="${annonce.vendeur.username}"
+      ></a
+      >)
+      <p th:text="${annonce.description}"></p>
+      <ul>
+        <li th:each="keyword : ${annonce.keywords}" th:text="${keyword}"></li>
+      </ul>
+
+      <div class="d-flex align-items-center">
+        <a
+          th:href="@{/messages/{receiverId}(receiverId=${annonce.vendeur.id})}"
+          class="btn btn-info me-2"
+        >
+          Send Message
+        </a>
+        <form th:action="@{/groupes}" method="post">
+          <input type="hidden" name="annonceId" th:value="${annonce.id}" />
+          <button
+            type="submit"
+            value="add to group"
+            class="btn btn-info"
+            style="border: none"
+          >
+            add to group
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="pagination-container mt-3">
+  <ul class="pagination justify-content-center">
+    <!-- First Page Link -->
+    <li class="page-item" th:classappend="${page == 1} ? 'disabled' : ''">
+      <a
+        class="page-link"
+        th:href="@{/recherches/save(page=1)}"
+        aria-label="First"
+      >
+        First
+      </a>
+    </li>
+
+    <!-- Previous Page Link (for current page -1) -->
+    <li class="page-item" th:classappend="${page == 1} ? 'disabled' : ''">
+      <a
+        class="page-link"
+        th:href="@{/recherches/save(page=${page - 1})}"
+        aria-label="Previous"
+      >
+        &lt;
+      </a>
+    </li>
+
+    <!-- Loop through pages within 3 before and after the current page -->
+    <li
+      th:each="p : ${#numbers.sequence(page - 3, page + 3)}"
+      th:if="${p > 0 and p <= pages}"
+      class="page-item"
+      th:classappend="${p == page} ? 'active' : ''"
+    >
+      <a
+        class="page-link"
+        th:href="@{/recherches/save(page=${p})}"
+        th:text="${p}"
+      ></a>
+    </li>
+
+    <!-- Next Page Link (for current page +1) -->
+    <li class="page-item" th:classappend="${page == pages} ? 'disabled' : ''">
+      <a
+        class="page-link"
+        th:href="@{/recherches/save(page=${page + 1})}"
+        aria-label="Next"
+      >
+        &gt;
+      </a>
+    </li>
+
+    <!-- Last Page Link -->
+    <li class="page-item" th:classappend="${page == pages} ? 'disabled' : ''">
+      <a
+        class="page-link"
+        th:href="@{/recherches/save(page=${pages})}"
+        aria-label="Last"
+      >
+        Last
+      </a>
+    </li>
+  </ul>
+</div>
+
+<style>
+  /* Make sure the cards container takes up the full width */
+  .cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* Adjust spacing between cards */
+  }
+
+  .card {
+    width: calc(
+      50% - 10px
+    ); /* Adjust to take half of the container width minus some margin */
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  /* On mouse-over, add a deeper shadow */
+  .card:hover {
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+  }
+
+  /* Add some padding inside the card container */
+  .container {
+    padding: 2px 16px;
+  }
+
+  /* Media query for smaller screens */
+  @media (max-width: 768px) {
+    .card {
+      width: calc(100% - 20px); /* Full width on small screens */
+    }
+  }
+</style>

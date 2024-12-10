@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>Update Annonce</title>
+  </head>
+  <body>
+    <h1>Update Annonce - ID: <span th:text="${annonce.id}"></span></h1>
+
+    <!-- Form with dynamic action and method override -->
+    <form th:action="@{/api/annonces/{id}(id=${annonce.id})}" method="post">
+      <!-- Hidden field to simulate PUT request -->
+      <input type="hidden" name="_method" value="PUT" />
+
+      <div>
+        <label for="titre">Title:</label>
+        <input
+          type="text"
+          id="titre"
+          name="titre"
+          th:value="${annonce.titre}"
+          required
+        />
+      </div>
+
+      <div>
+        <label for="description">Description:</label>
+        <textarea
+          id="description"
+          name="description"
+          th:text="${annonce.description}"
+          required
+        ></textarea>
+      </div>
+
+      <div>
+        <label for="etatObjet">Condition:</label>
+        <select id="etatObjet" name="etatObjet" th:value="${annonce.etatObjet}">
+          <option
+            value="CommeNeuf"
+            th:selected="${annonce.etatObjet == 'CommeNeuf'}"
+          >
+            Comme Neuf
+          </option>
+          <option
+            value="TresBonEtat"
+            th:selected="${annonce.etatObjet == 'TresBonEtat'}"
+          >
+            Très Bon État
+          </option>
+          <option value="Neuf" th:selected="${annonce.etatObjet == 'Neuf'}">
+            Neuf
+          </option>
+        </select>
+      </div>
+
+      <div>
+        <label for="latitude">Latitude:</label>
+        <input
+          type="number"
+          id="latitude"
+          name="latitude"
+          th:value="${annonce.latitude}"
+          step="any"
+          required
+        />
+      </div>
+
+      <div>
+        <label for="longitude">Longitude:</label>
+        <input
+          type="number"
+          id="longitude"
+          name="longitude"
+          th:value="${annonce.longitude}"
+          step="any"
+          required
+        />
+      </div>
+
+      <div>
+        <label for="typeDon">Donation Type:</label>
+        <input
+          type="checkbox"
+          id="typeDon"
+          name="typeDon"
+          th:checked="${annonce.typeDon}"
+        />
+      </div>
+
+      <div>
+        <label for="keywords">Keywords:</label>
+        <input
+          type="text"
+          id="keywords"
+          name="keywords"
+          th:value="${#strings.replace(#strings.replace(#strings.replace(annonce.keywords, '[', ''), ']', ''), ',', ' ')}"
+          required
+        />
+      </div>
+
+      <button type="submit">Submit</button>
+    </form>
+  </body>
+</html>

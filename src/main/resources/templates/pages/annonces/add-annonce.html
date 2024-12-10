@@ -1,0 +1,55 @@
+<form action="/annonces" method="POST" class="container mt-5">
+  <div class="mb-3">
+    <label for="titre" class="form-label">Title:</label>
+    <input type="text" id="titre" name="titre" class="form-control" required />
+  </div>
+  <div class="mb-3">
+    <label for="description" class="form-label">Description:</label>
+    <textarea
+      id="description"
+      name="description"
+      class="form-control"
+      rows="4"
+      required
+    ></textarea>
+  </div>
+  <div class="mb-3">
+    <label for="etatObjet" class="form-label">Condition:</label>
+    <select id="etatObjet" name="etatObjet" class="form-select">
+      <option value="CommeNeuf">Comme Neuf</option>
+      <option value="TresBonEtat">Tres Bon Etat</option>
+      <option value="Neuf">Neuf</option>
+    </select>
+  </div>
+  <div class="mb-3">
+    <label for="zone" class="form-label">Zone:</label>
+    <input
+      type="text"
+      id="zone"
+      name="zone"
+      class="form-control"
+      step="any"
+      required
+    />
+  </div>
+  <div class="mb-3 form-check">
+    <input
+      type="checkbox"
+      id="typeDon"
+      name="typeDon"
+      class="form-check-input"
+    />
+    <label for="typeDon" class="form-check-label">Donation Type</label>
+  </div>
+  <div class="mb-3">
+    <label for="keywords" class="form-label">Keywords:</label>
+    <input
+      type="text"
+      id="keywords"
+      name="keywords"
+      class="form-control"
+      required
+    />
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>

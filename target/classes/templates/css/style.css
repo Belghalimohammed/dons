@@ -1,0 +1,56 @@
+/* Ensure the html and body take full height */
+html {
+    height: 100%; /* Allow full height of the viewport */
+    margin: 0; /* Remove default margin */
+}
+body{
+    position: relative;
+    height: 100%;
+}
+
+/* Sidebar styles */
+#sidebar {
+    height: 100%; /* Full height of the page */
+    position: fixed; /* Fix the sidebar to the left */
+    top: 0; /* Align at the top */
+    left: 0; /* Align at the left */
+    width: 250px; /* Sidebar width */
+    background-color: #f8f9fa; /* Optional background color */
+    padding-top: 20px; /* Padding */
+    padding-left: 10px;
+    padding-right: 10px;
+    overflow-y: auto; /* Allow vertical scrolling if content overflows */
+}
+
+.container-fluid{
+    position: relative;
+    height: 100%;
+}
+
+/* Sidebar links */
+#sidebar .nav-link {
+    color: #333;
+}
+
+#sidebar .nav-link.active {
+    font-weight: bold;
+    color: #0056b3;
+}
+
+/* Main content area */
+main {
+    margin-left: 250px; /* Leave space for the sidebar */
+    padding: 20px;
+    height: 100%; /* Make content area take full height */
+    overflow: auto; /* Allow scrolling if content overflows */
+    background-color: #fff; /* Optional background color */
+}
+
+/* Optional custom styling for the page */
+body {
+    font-family: Arial, sans-serif;
+}
+
+.navbar {
+    margin-bottom: 0;
+}
