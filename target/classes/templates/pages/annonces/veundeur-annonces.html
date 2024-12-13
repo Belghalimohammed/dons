@@ -46,13 +46,13 @@
             <a
               th:href="@{/modal/{annonceId}?oldPath={oldPath}(annonceId=${annonce.id}, oldPath=${oldPath})}"
               class="btn btn-info me-2"
-              >Buy Now</a
+              ><i class="bi bi-shop"></i>Buy Now</a
             >
 
             <!-- Form -->
             <form th:action="@{/groupes}" method="post" class="mb-0">
               <input type="hidden" name="annonceId" th:value="${annonce.id}" />
-              <button type="submit" class="btn btn-info">Add to Group</button>
+              <button type="submit" class="btn btn-info"><i class="bi bi-cart">add to group</i></button>
             </form>
           </div>
         </td>

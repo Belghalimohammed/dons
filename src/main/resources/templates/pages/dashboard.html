@@ -26,13 +26,13 @@
           th:href="@{/messages/{receiverId}(receiverId=${annonce.vendeur.id})}"
           class="btn btn-info me-2"
         >
-          <i class="bi bi-envelope"></i>
+          <i class="bi bi-envelope"></i> Message
         </a>
 
         <a
           th:href="@{/modal/{annonceId}?oldPath={oldPath}(annonceId=${annonce.id}, oldPath=${oldPath})}"
           class="btn btn-info me-2"
-          ><i class="bi bi-shop"></i></a
+          ><i class="bi bi-shop"></i> Buy Now</a
         >
         <form th:action="@{/groupes}" method="post">
           <input type="hidden" name="annonceId" th:value="${annonce.id}" />
@@ -42,7 +42,7 @@
             class="btn btn-info"
             style="border: none"
           >
-            <i class="bi bi-database-fill-add"></i>
+            <i class="bi bi-cart">add to group</i>
           </button>
         </form>
       </div>

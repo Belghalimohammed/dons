@@ -1,14 +1,11 @@
-<div style="margin: 10px" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml"
-     xmlns:th="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml"
-     xmlns:th="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml"
-     xmlns:th="http://www.w3.org/1999/xhtml">
+<div style="margin: 10px">
   <form th:action="@{/groupes/validate}" method="post">
     <input type="hidden" name="groupeId" th:value="${groupe.id}" />
     <button
-      type="submit"
-      value="Valider"
-      class="btn btn-success"
-      style="border: none"
+            type="submit"
+            value="Valider"
+            class="btn btn-success"
+            style="border: none"
     >
       Valider mon don
     </button>
@@ -28,10 +25,10 @@
         <input type="hidden" name="groupeId" th:value="${groupe.id}" />
         <input type="hidden" name="annonceId" th:value="${annonce.id}" />
         <button
-          type="submit"
-          value="delete"
-          class="btn btn-secondary"
-          style="border: none"
+                type="submit"
+                value="delete"
+                class="btn btn-secondary"
+                style="border: none"
         >
           <i class="bi bi-trash"></i>
         </button>
