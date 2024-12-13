@@ -84,24 +84,29 @@ public class GroupeServiceImp implements GroupeService {
             newGroupe.setPri(false); // Ensure pri is set correctly
             return groupeRepository.save(newGroupe);
         } else {
-            // Add the annonce to the first group found (assuming one group per user)
-            Groupe existingGroupe = existingGroups.get(0);
-            if (existingGroupe.getAnnonces().isEmpty()) {
-                existingGroupe.setCreationDate(new Date());
+            // Process all existing groups
+            for (Groupe groupe : existingGroups) {
+                // Check if the group contains an annonce with the same vendeur
+                if (groupe.getAnnonces().get(0).getVendeur().getId() == annonce.getVendeur().getId()) {
+                    List<Annonce> annoncesInGroup = groupe.getAnnonces();
+                    if (!annoncesInGroup.contains(annonce)) { // Only add if not already present
+                        annoncesInGroup.add(annonce);
+                        groupe.setAnnonces(annoncesInGroup);
+                        return groupeRepository.save(groupe);
+                    }
+                }
             }
-            List<Annonce> annoncesInGroup = existingGroupe.getAnnonces();
-
-            // Check if the annonce already exists in the group
-            if (!annoncesInGroup.contains(annonce)) {
-                annoncesInGroup.add(annonce);
-                existingGroupe.setAnnonces(annoncesInGroup);
-                return groupeRepository.save(existingGroupe);
-            } else {
-                // If the annonce is already in the group, return the existing group
-                return existingGroupe;
-            }
+            Groupe newGroupe = new Groupe();
+            newGroupe.setCreationDate(new Date());
+            List<Annonce> annonces = new ArrayList<>();
+            annonces.add(annonce);
+            newGroupe.setAnnonces(annonces);
+            newGroupe.setAcheteur(user);
+            newGroupe.setPri(false); // Ensure pri is set correctly
+            return groupeRepository.save(newGroupe);
         }
     }
+
 
     @Override
     public Groupe updateGroupe(Long id, Groupe updatedGroupe) {
@@ -145,10 +150,12 @@ public class GroupeServiceImp implements GroupeService {
             // Find and remove the Annonce by ID from the list of Annonces
             List<Annonce> annonces = groupe.getAnnonces();
             boolean isRemoved = annonces.removeIf(annonce -> annonce.getId().equals(annonceId));
-
             if (isRemoved) {
                 // Save the updated Groupe
                 groupeRepository.save(groupe);
+            }
+            if(groupe.getAnnonces().isEmpty()){
+                groupeRepository.deleteById(groupe.getId());
             }
             return isRemoved;
         }
@@ -157,18 +164,17 @@ public class GroupeServiceImp implements GroupeService {
     }
 
     @Override
-    public Groupe validateGroupe(User user, Long groupeId) {
+    public Groupe validateGroupe(Long groupeId,Long achteur) {
         Groupe groupe = getGroupeById(groupeId);
+        User user = userService.getUserById(achteur);
 
         groupe.setPri(true);
         groupe.setValidationDate(new Date());
-        groupe.setAcheteur(user);
         groupeRepository.save(groupe);
         for (Annonce annonce : groupe.getAnnonces()) {
             annonce.setPri(true);
             annonce.setAcheteur(user);
             annonceRepository.save(annonce);
-
         }
         return groupe;
     }

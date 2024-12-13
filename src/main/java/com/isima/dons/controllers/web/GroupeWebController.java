@@ -36,19 +36,33 @@ public class GroupeWebController {
         System.out.println("the user ID " + user.getId());
 
         // Use service to get the groupes and annonces
-        List<Groupe> groupe = groupeService.getGroupeByAcheteurAndNotTaken(user.getId());
-        List<Annonce> annonces = groupeService.getAnnoncesFromGroupe(user.getId());
+        List<Groupe> groupes = groupeService.getGroupeByAcheteurAndNotTaken(user.getId());
 
-        if (!groupe.isEmpty()) {
+        if (!groupes.isEmpty()) {
             System.out.println("not empty ");
-            model.addAttribute("groupe", groupe.get(0));
-            model.addAttribute("annonces", annonces); // Pass annonces to the model
-            model.addAttribute("content", "pages/groupes/groupe");
+            model.addAttribute("groupes", groupes);
+            model.addAttribute("content", "pages/groupes/NonvalideGroup");
             return "home";
         } else {
             return "redirect:/";
 
         }
+    }
+
+    @PostMapping("/access-group")
+    public String getAllAnnoncesDuGroupe(@RequestParam("groupeId") Long groupeId,Model model, Authentication authentication) {
+        UserPrincipale userPrincipale = (UserPrincipale) authentication.getPrincipal();
+        User user = userService.getUserById(userPrincipale.getId());
+        System.out.println(user.getUsername());
+        System.out.println("the user ID " + user.getId());
+
+        // Use service to get the groupes and annonces
+        Groupe groupe = groupeService.getGroupeById(groupeId);
+        List<Annonce> annonces = groupe.getAnnonces();
+        model.addAttribute("groupe", groupe);
+        model.addAttribute("annonces", annonces);
+        model.addAttribute("content", "pages/groupes/groupe");
+        return "home";
     }
 
     @GetMapping("/valide")
@@ -84,15 +98,14 @@ public class GroupeWebController {
     }
 
     @PostMapping("/validate")
-    public String validateGroupe(@RequestParam Long groupeId, Authentication authentication) {
-
-        UserPrincipale userPrincipale = (UserPrincipale) authentication.getPrincipal();
-        User user = userService.getUserById(userPrincipale.getId());
-        groupeService.validateGroupe(user, groupeId);
+    public String validateGroupe(@RequestParam Long groupeId,Authentication authentication) {
+        UserPrincipale userDetails = (UserPrincipale) authentication.getPrincipal();
+        Long achteur = userDetails.getId();
+        groupeService.validateGroupe(groupeId,achteur);
         return "redirect:/groupes/valide";
     }
 
-    @DeleteMapping
+    @PostMapping("/remove")
     public String removeAnnonceFromGroupe(
             @RequestParam Long groupeId,
             @RequestParam Long annonceId) {

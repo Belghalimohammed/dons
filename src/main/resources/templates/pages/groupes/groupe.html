@@ -1,4 +1,7 @@
-<div style="margin: 10px">
+<div style="margin: 10px" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml"
+     xmlns:th="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml"
+     xmlns:th="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml"
+     xmlns:th="http://www.w3.org/1999/xhtml">
   <form th:action="@{/groupes/validate}" method="post">
     <input type="hidden" name="groupeId" th:value="${groupe.id}" />
     <button
@@ -20,7 +23,7 @@
       <ul>
         <li th:each="keyword : ${annonce.keywords}" th:text="${keyword}"></li>
       </ul>
-      <form th:action="@{/groupes}" method="post">
+      <form th:action="@{/groupes/remove}" method="post">
         <input type="hidden" name="_method" value="DELETE" />
         <input type="hidden" name="groupeId" th:value="${groupe.id}" />
         <input type="hidden" name="annonceId" th:value="${annonce.id}" />
@@ -30,7 +33,7 @@
           class="btn btn-secondary"
           style="border: none"
         >
-          delete
+          <i class="bi bi-trash"></i>
         </button>
       </form>
     </div>

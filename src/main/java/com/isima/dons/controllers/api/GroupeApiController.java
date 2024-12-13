@@ -76,7 +76,7 @@ public class GroupeApiController {
             Authentication authentication) {
         UserPrincipale userPrincipale = (UserPrincipale) authentication.getPrincipal();
         User user = userService.getUserById(userPrincipale.getId());
-        groupeService.validateGroupe(user, groupeId);
+        groupeService.validateGroupe(groupeId,user.getId());
         return ResponseEntity.ok("Groupe validated successfully");
     }
 

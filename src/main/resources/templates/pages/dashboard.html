@@ -13,6 +13,9 @@
         th:text="${annonce.vendeur.username}"
       ></a
       >)
+      <br>
+      <i class="bi bi-geo-alt-fill"></i><span th:text="${annonce.zone}"> </span>
+      <br><br><b>Description:</b><br>
       <p th:text="${annonce.description}"></p>
       <ul>
         <li th:each="keyword : ${annonce.keywords}" th:text="${keyword}"></li>
@@ -23,13 +26,13 @@
           th:href="@{/messages/{receiverId}(receiverId=${annonce.vendeur.id})}"
           class="btn btn-info me-2"
         >
-          Send Message
+          <i class="bi bi-envelope"></i>
         </a>
 
         <a
           th:href="@{/modal/{annonceId}?oldPath={oldPath}(annonceId=${annonce.id}, oldPath=${oldPath})}"
           class="btn btn-info me-2"
-          >Buy Now</a
+          ><i class="bi bi-shop"></i></a
         >
         <form th:action="@{/groupes}" method="post">
           <input type="hidden" name="annonceId" th:value="${annonce.id}" />
@@ -39,7 +42,7 @@
             class="btn btn-info"
             style="border: none"
           >
-            add to group
+            <i class="bi bi-database-fill-add"></i>
           </button>
         </form>
       </div>
