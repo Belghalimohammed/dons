@@ -62,6 +62,8 @@ public class AnnonceSpecification {
                     predicates.add(zonePredicate);
                 }
 
+                predicates.add(cb.isFalse(root.get("pri")));
+
                 // Combine all predicates (title/description search + keyword list + etatObjet
                 // filter + zone filter)
                 return cb.and(predicates.toArray(new Predicate[0]));

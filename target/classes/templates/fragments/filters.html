@@ -13,14 +13,15 @@
       />
     </div>
     <div class="mb-3">
-      <input
-        type="text"
-        name="zone"
-        class="form-control"
-        placeholder="Entrer une zone géo ..."
-        aria-label="Search"
-        th:value="${zone}"
-      />
+      <select name="zone" class="form-control" aria-label="Zone">
+        <option value="">Select a zone</option>
+        <option
+          th:each="zoneOption : ${zones}"
+          th:value="${zoneOption}"
+          th:text="${zoneOption}"
+          th:selected="${zoneOption == zone}"
+        ></option>
+      </select>
     </div>
 
     <!-- Checkbox Filters -->
@@ -129,7 +130,17 @@
   <!-- Keywords List -->
   <ul class="list-group">
     <th:block th:each="item : ${items}">
-      <li class="list-group-item" th:text="${item}"></li>
+      <li
+        class="list-group-item d-flex justify-content-between align-items-center"
+      >
+        <span th:text="${item}"></span>
+        <a
+          th:href="@{/recherches/removekeywordfilter(key=${item})}"
+          class="text-danger"
+        >
+          <i class="bi bi-trash"></i>
+        </a>
+      </li>
     </th:block>
   </ul>
 </div>

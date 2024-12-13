@@ -20,8 +20,7 @@ public interface RechercheService {
 
     Recherche updateRecherche(Long id, Recherche updatedRecherche);
 
-    List<Recherche> getByUserAndSearchTermAndKeywordsListInAndEtatObjetListInAndZone(User user, String searchTerm,
-            List<String> keywordsList, List<String> etatObjetList, String zone);
+    boolean exists(Recherche recherche);
 
     List<Recherche> getByUserAndSearchTerm(User user, String searchTerm);
 

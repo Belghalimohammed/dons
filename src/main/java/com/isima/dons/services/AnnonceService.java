@@ -3,6 +3,7 @@ package com.isima.dons.services;
 import com.isima.dons.entities.Annonce;
 import com.isima.dons.entities.Annonce.EtatObjet;
 import com.isima.dons.entities.FilterCriteria;
+import com.isima.dons.entities.User;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,12 @@ public interface AnnonceService {
     List<Annonce> getAnnoncesByUser(Long idUser);
 
     List<Annonce> getAnnoncesByVendeurId(Long vendeurId);
+
+    List<String> findDistinctZones();
+
+    void addAcheteurAndMarkAsPri(Long annonceId, User currentUser);
+
+    List<Annonce> getAnnoncesByAcheteur(User acheteur);
 
     Annonce createAnnonce(Annonce annonce);
 

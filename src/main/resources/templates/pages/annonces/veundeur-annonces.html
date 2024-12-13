@@ -19,7 +19,14 @@
     <tbody>
       <tr th:each="annonce : ${annonces}">
         <td th:text="${annonce.id}"></td>
-        <td th:text="${annonce.titre}"></td>
+        <td>
+          <a
+            th:href="@{/annonces/{id}(id=${annonce.id})}"
+            style="color: black"
+            th:text="${annonce.titre}"
+          ></a>
+        </td>
+
         <td th:text="${annonce.description}"></td>
         <td th:text="${annonce.etatObjet}"></td>
         <td th:text="${annonce.zone}"></td>
@@ -32,9 +39,31 @@
             ></li>
           </ul>
         </td>
+
+        <td>
+          <div class="d-flex align-items-center">
+            <!-- Link -->
+            <a
+              th:href="@{/modal/{annonceId}?oldPath={oldPath}(annonceId=${annonce.id}, oldPath=${oldPath})}"
+              class="btn btn-info me-2"
+              >Buy Now</a
+            >
+
+            <!-- Form -->
+            <form th:action="@{/groupes}" method="post" class="mb-0">
+              <input type="hidden" name="annonceId" th:value="${annonce.id}" />
+              <button type="submit" class="btn btn-info">Add to Group</button>
+            </form>
+          </div>
+        </td>
       </tr>
     </tbody>
   </table>
 
-  <a href="/" class="btn btn-primary mt-3">Retour à l'accueil</a>
+  <a
+    th:href="@{/messages/{receiverId}(receiverId=${annonces[0].vendeur.id})}"
+    class="btn btn-info me-2"
+  >
+    Send Message
+  </a>
 </div>

@@ -10,15 +10,14 @@ import com.isima.dons.entities.User;
 @Repository
 public interface RechercheRepository extends JpaRepository<Recherche, Long> {
 
-    List<Recherche> findByUserAndSearchTermAndKeywordsListInAndEtatObjetListInAndZone(
-            User user,
-            String searchTerm,
-            List<String> keywordsList,
-            List<String> etatObjetList,
-            String zone);
+        boolean existsByUserAndSearchTermAndZoneAndKeywordsListContainsAndEtatObjetListContains(
+                        User user, String searchTerm, String zone, List<String> keywordsList,
+                        List<String> etatObjetList);
 
-    List<Recherche> findByUserAndSearchTerm(
-            User user,
-            String searchTerm);
+        List<Recherche> findByUserAndSearchTermAndZone(User user, String key, String zone);
+
+        List<Recherche> findByUserAndSearchTerm(
+                        User user,
+                        String searchTerm);
 
 }

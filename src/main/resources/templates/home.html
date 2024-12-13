@@ -26,6 +26,9 @@
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
           <!-- Insert page content dynamically -->
           <div th:insert="${content}"></div>
+          <div th:if="${modal != null}">
+            <div th:insert="${modal}"></div>
+          </div>
         </main>
       </div>
     </div>

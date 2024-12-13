@@ -31,7 +31,7 @@
         <li class="list-group-item">
           <strong>Vendeur: </strong>
           <a
-            th:href="@{/user/{id}(id=${annonce.vendeur.id})}"
+            th:href="@{/annonces/vendeur/{id}(id=${annonce.vendeur.id})}"
             th:text="${annonce.vendeur.username}"
             >Vendeur</a
           >
@@ -53,6 +53,11 @@
     <div class="col-md-4">
       <h4>Actions</h4>
       <a href="#" class="btn btn-info mb-3">Send Message</a>
+      <a
+        th:href="@{/modal/{annonceId}?oldPath={oldPath}(annonceId=${annonce.id}, oldPath=${oldPath})}"
+        class="btn btn-info mb-3"
+        >Buy Now</a
+      >
       <form th:action="@{/groupes}" method="post">
         <input type="hidden" name="annonceId" th:value="${annonce.id}" />
         <button type="submit" class="btn btn-primary">Add to Group</button>

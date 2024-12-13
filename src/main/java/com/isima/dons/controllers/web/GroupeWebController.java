@@ -84,8 +84,11 @@ public class GroupeWebController {
     }
 
     @PostMapping("/validate")
-    public String validateGroupe(@RequestParam Long groupeId) {
-        groupeService.validateGroupe(groupeId);
+    public String validateGroupe(@RequestParam Long groupeId, Authentication authentication) {
+
+        UserPrincipale userPrincipale = (UserPrincipale) authentication.getPrincipal();
+        User user = userService.getUserById(userPrincipale.getId());
+        groupeService.validateGroupe(user, groupeId);
         return "redirect:/groupes/valide";
     }
 

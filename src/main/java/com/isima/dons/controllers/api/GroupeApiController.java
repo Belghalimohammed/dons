@@ -41,6 +41,13 @@ public class GroupeApiController {
         return ResponseEntity.ok(new GroupeResponse(groupes.get(0), annonces));
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<?> all() {
+
+        List<Groupe> annonces = groupeService.getAllGroupes();
+        return ResponseEntity.ok(annonces);
+    }
+
     // Fetch validated groupes for the authenticated user
     @GetMapping("/valide")
     public ResponseEntity<List<Groupe>> getValidatedGroupes(Authentication authentication) {
@@ -65,8 +72,11 @@ public class GroupeApiController {
 
     // Validate a groupe
     @PostMapping("/validate")
-    public ResponseEntity<String> validateGroupe(@RequestParam("groupeId") Long groupeId) {
-        groupeService.validateGroupe(groupeId);
+    public ResponseEntity<String> validateGroupe(@RequestParam("groupeId") Long groupeId,
+            Authentication authentication) {
+        UserPrincipale userPrincipale = (UserPrincipale) authentication.getPrincipal();
+        User user = userService.getUserById(userPrincipale.getId());
+        groupeService.validateGroupe(user, groupeId);
         return ResponseEntity.ok("Groupe validated successfully");
     }
 

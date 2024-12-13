@@ -19,15 +19,12 @@ public class Annonce {
     @Column(length = 500)
     private String description;
 
-
-
-    
-
     public Annonce() {
 
     }
 
-    public Annonce(Long id, String titre, String description, EtatObjet etatObjet, LocalDate datePublication, String zone, boolean typeDon, boolean pri, User vendeur, List<String> keywords) {
+    public Annonce(Long id, String titre, String description, EtatObjet etatObjet, LocalDate datePublication,
+            String zone, boolean typeDon, boolean pri, User vendeur, User acheteur, List<String> keywords) {
         this.id = id;
         this.titre = titre;
         this.description = description;
@@ -38,6 +35,7 @@ public class Annonce {
         this.vendeur = vendeur;
         this.keywords = keywords;
         this.pri = pri;
+        this.acheteur = acheteur;
     }
 
     public Long getId() {
@@ -76,6 +74,10 @@ public class Annonce {
         return vendeur;
     }
 
+    public User getAcheteur() {
+        return acheteur;
+    }
+
     public List<String> getKeywords() {
         return keywords;
     }
@@ -83,7 +85,6 @@ public class Annonce {
     public enum EtatObjet {
         Neuf, CommeNeuf, TresBonEtat, BonEtat, EtatCorrect, Occasion
     }
-
 
     @Enumerated(EnumType.STRING)
     private EtatObjet etatObjet;
@@ -108,8 +109,15 @@ public class Annonce {
         this.vendeur = vendeur;
     }
 
+    public void setAcheteur(User acheteur) {
+        this.acheteur = acheteur;
+    }
+
     @ManyToOne
     private User vendeur;
+
+    @ManyToOne
+    private User acheteur;
 
     @ElementCollection
     private List<String> keywords;
@@ -134,7 +142,6 @@ public class Annonce {
         this.datePublication = datePublication;
     }
 
-
     public boolean getTypeDon() {
         return typeDon;
     }
@@ -147,4 +154,3 @@ public class Annonce {
         this.keywords = keywords;
     }
 }
-

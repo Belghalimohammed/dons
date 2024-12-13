@@ -1,0 +1,48 @@
+<div class="container">
+  <h1>List of Searches</h1>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Search Term</th>
+        <th>Keywords</th>
+        <th>Etat Objet</th>
+        <th>Zone</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr th:each="recherche : ${recherches}">
+        <td th:text="${recherche.user.username}">User</td>
+        <td th:text="${recherche.searchTerm}">Search Term</td>
+        <td>
+          <ul>
+            <li
+              th:each="keyword : ${recherche.keywordsList}"
+              th:text="${keyword}"
+            ></li>
+          </ul>
+        </td>
+        <td>
+          <ul>
+            <li
+              th:each="etat : ${recherche.etatObjetList}"
+              th:text="${etat}"
+            ></li>
+          </ul>
+        </td>
+        <td th:text="${recherche.zone}">Zone</td>
+
+        <td>
+          <a
+            class="btn btn-primary"
+            th:href="@{/recherches/use(searchTerm=${recherche.searchTerm}, zone=${recherche.zone},
+                                                  etatObjets=${recherche.etatObjetList}, keywords=${recherche.keywordsList})}"
+          >
+            Search
+          </a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

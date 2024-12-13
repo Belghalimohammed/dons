@@ -35,11 +35,22 @@ public class RechercheServiceImpl implements RechercheService {
     }
 
     @Override
-    public List<Recherche> getByUserAndSearchTermAndKeywordsListInAndEtatObjetListInAndZone(User user,
-            String searchTerm, List<String> keywordsList, List<String> etatObjetList, String zone) {
+    public boolean exists(Recherche recherche) {
+        // Handle null values gracefully
+        User user = (recherche.getUser() == null) ? null : recherche.getUser();
+        String searchTerm = (recherche.getSearchTerm() == null) ? "" : recherche.getSearchTerm();
+        String zone = (recherche.getZone() == null) ? "" : recherche.getZone();
+        List<String> keywordsList = (recherche.getKeywordsList() == null) ? List.of() : recherche.getKeywordsList();
+        List<String> etatObjetList = (recherche.getEtatObjetList() == null) ? List.of() : recherche.getEtatObjetList();
 
-        return rechercheRepository.findByUserAndSearchTermAndKeywordsListInAndEtatObjetListInAndZone(user, searchTerm,
-                keywordsList, etatObjetList, zone);
+        List<Recherche> existing = rechercheRepository.findByUserAndSearchTermAndZone(user, searchTerm, zone);
+
+        for (Recherche r : existing) {
+            if (r.getKeywordsList().containsAll(keywordsList) && r.getEtatObjetList().containsAll(etatObjetList)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

@@ -9,6 +9,8 @@ import com.isima.dons.services.AnnonceService;
 import com.isima.dons.services.RechercheService;
 import com.isima.dons.services.UserService;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+
 import com.isima.dons.configuration.UserPrincipale;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -45,6 +48,7 @@ public class AnnonceWebController {
 
     @GetMapping
     public String home(
+            HttpServletRequest request,
             @RequestParam(value = "addkeyword", required = false) String addkeyword,
             HttpSession session,
             Model model,
@@ -88,13 +92,12 @@ public class AnnonceWebController {
             rch.setUser(user);
             rch.setSearchTerm(key);
 
-            List<Recherche> listExist = rechercheservice.getByUserAndSearchTerm(user, key);
-
             if (rch.getEtatObjetList().size() != 0 || rch.getKeywordsList().size() != 0 || rch.getSearchTerm() != null
                     || rch.getZone() != null) {
-                if (listExist.size() < 1) {
+                if (!rechercheservice.exists(rch)) {
                     rechercheservice.createRecherche(rch);
                 }
+
             }
 
         }
@@ -102,10 +105,14 @@ public class AnnonceWebController {
         Page<Annonce> annonces = annonceService.findFilteredAnnonces(key, zone, items, etatList, page);
 
         Long annoncesCount = annonceService.findFilteredAnnoncesCount(key, zone, items, etatList);
+        List<String> zones = annonceService.findDistinctZones();
+        model.addAttribute("zones", zones);
         model.addAttribute("pages", (int) Math.ceil((double) annoncesCount / 20));
         model.addAttribute("annonces", annonces);
+        model.addAttribute("oldPath", request.getRequestURI());
         model.addAttribute("content", "pages/dashboard");
         model.addAttribute("filters", "fragments/filters");
+        session.setAttribute("model", model);
         return "home";
     }
 
@@ -127,19 +134,37 @@ public class AnnonceWebController {
         return "home";
     }
 
+    @GetMapping("/mes-achats")
+    public String mesAchats(Model model, Authentication authentication) {
+        UserPrincipale userPrincipale = (UserPrincipale) authentication.getPrincipal();
+        User user = userService.getUserById(userPrincipale.getId());
+
+        List<Annonce> annonces = annonceService.getAnnoncesByAcheteur(user); // Fetch annonces
+        model.addAttribute("annonces", annonces); // Pass annonces to the model
+        model.addAttribute("content", "pages/annonces/mes-annonces");
+        return "home";
+    }
+
     @GetMapping("/{id}")
-    public String getAnnonceDetails(@PathVariable Long id, Model model) {
+    public String getAnnonceDetails(@PathVariable Long id, Model model, HttpServletRequest request,
+            HttpSession session) {
         Annonce annonce = annonceService.getAnnonceById(id); // Méthode pour récupérer l'annonce par son ID
         model.addAttribute("annonce", annonce);
         model.addAttribute("content", "pages/annonces/annonce-details");
+        model.addAttribute("oldPath", request.getRequestURI());
+        session.setAttribute("model", model);
         return "home"; // Le nom de la page Thymeleaf à afficher
     }
 
     @GetMapping("/vendeur/{id}")
-    public String getAnnoncesByVendeurId(@PathVariable Long id, Model model) {
+    public String getAnnoncesByVendeurId(@PathVariable Long id, Model model, HttpServletRequest request,
+            HttpSession session) {
         List<Annonce> annonces = annonceService.getAnnoncesByVendeurId(id);
         model.addAttribute("annonces", annonces);
         model.addAttribute("content", "pages/annonces/veundeur-annonces");
+        model.addAttribute("oldPath", request.getRequestURI());
+        session.setAttribute("model", model);
+
         return "home";
     }
 
@@ -176,6 +201,16 @@ public class AnnonceWebController {
     public String deleteAnnonce(@PathVariable Long id) {
         annonceService.deleteAnnonce(id);
         return "redirect:/";
+    }
+
+    @GetMapping("/buy/{annonceId}")
+    public String addAcheteur(@PathVariable Long annonceId,
+            @RequestParam(value = "oldPath", required = false, defaultValue = "/") String oldPath,
+            Authentication authentication) {
+        UserPrincipale userPrincipale = (UserPrincipale) authentication.getPrincipal();
+        User user = userService.getUserById(userPrincipale.getId());
+        annonceService.addAcheteurAndMarkAsPri(annonceId, user);
+        return "redirect:" + oldPath; // Redirect to the annonce list or another appropriate view
     }
 
 }

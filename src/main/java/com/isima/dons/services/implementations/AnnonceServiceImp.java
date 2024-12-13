@@ -3,9 +3,14 @@ package com.isima.dons.services.implementations;
 import com.isima.dons.entities.Annonce;
 import com.isima.dons.entities.Annonce.EtatObjet;
 import com.isima.dons.entities.FilterCriteria;
+import com.isima.dons.entities.Recherche;
+import com.isima.dons.entities.User;
 import com.isima.dons.repositories.AnnonceRepository;
 import com.isima.dons.repositories.AnnonceSpecification;
 import com.isima.dons.services.AnnonceService;
+
+import jakarta.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -51,12 +56,17 @@ public class AnnonceServiceImp implements AnnonceService {
 
     @Override
     public List<Annonce> getAnnoncesByVendeurId(Long vendeurId) {
-        return annonceRepository.findByVendeurId(vendeurId);
+        return annonceRepository.findByVendeurIdAndPriFalse(vendeurId);
     }
 
     @Override
     public List<Annonce> getAnnoncesByUser(Long idUser) {
         return annonceRepository.getAnnoncesByUser(idUser);
+    }
+
+    @Override
+    public List<String> findDistinctZones() {
+        return annonceRepository.findDistinctZones();
     }
 
     public Annonce updateAnnonce(Long id, Annonce updatedAnnonce) {
@@ -84,6 +94,26 @@ public class AnnonceServiceImp implements AnnonceService {
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Annonce not found");
         }
+    }
+
+    @Override
+    public void addAcheteurAndMarkAsPri(Long annonceId, User currentUser) {
+        Annonce annonce = annonceRepository.findById(annonceId).orElseThrow(
+                () -> new EntityNotFoundException("Annonce not found with ID: " + annonceId));
+
+        // Set the buyer to the current user
+        annonce.setAcheteur(currentUser);
+
+        // Set pri to true
+        annonce.setPri(true);
+
+        annonceRepository.save(annonce);
+    }
+
+    @Override
+    public List<Annonce> getAnnoncesByAcheteur(User acheteur) {
+        return annonceRepository.findByAcheteur(acheteur); // Or annonceRepository.findAnnoncesByAcheteur(acheteur) if
+                                                           // using custom query
     }
 
     @Override

@@ -157,15 +157,18 @@ public class GroupeServiceImp implements GroupeService {
     }
 
     @Override
-    public Groupe validateGroupe(Long groupeId) {
+    public Groupe validateGroupe(User user, Long groupeId) {
         Groupe groupe = getGroupeById(groupeId);
 
         groupe.setPri(true);
         groupe.setValidationDate(new Date());
+        groupe.setAcheteur(user);
         groupeRepository.save(groupe);
         for (Annonce annonce : groupe.getAnnonces()) {
             annonce.setPri(true);
+            annonce.setAcheteur(user);
             annonceRepository.save(annonce);
+
         }
         return groupe;
     }

@@ -2,6 +2,7 @@ package com.isima.dons.repositories;
 
 import com.isima.dons.entities.Annonce;
 import com.isima.dons.entities.Groupe;
+import com.isima.dons.entities.User;
 
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,7 +22,12 @@ public interface AnnonceRepository extends JpaRepository<Annonce, Long>, JpaSpec
     @Query("select a from Annonce a where a.vendeur.id = ?1")
     List<Annonce> getAnnoncesByUser(@Param("user") Long user);
 
-    List<Annonce> findByVendeurId(Long vendeurId);
+    List<Annonce> findByVendeurIdAndPriFalse(Long vendeurId);
+
+    @Query("SELECT DISTINCT a.zone FROM Annonce a")
+    List<String> findDistinctZones();
+
+    List<Annonce> findByAcheteur(User acheteur);
 
     List<Annonce> findAll(Specification<Annonce> spec);
 

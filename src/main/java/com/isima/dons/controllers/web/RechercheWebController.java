@@ -54,11 +54,44 @@ public class RechercheWebController {
     @Autowired
     private RechercheService rechercheservice;
 
+    @GetMapping
+    public String getAll(Model model) {
+
+        List<Recherche> recherches = rechercheservice.getAllRecherches();
+
+        model.addAttribute("recherches", recherches);
+        model.addAttribute("content", "pages/recherches/recherches.html");
+        return "home";
+    }
+
     @GetMapping("/clearFilters")
     public String clearSession(HttpSession session) {
         // Clear all session attributes except SPRING_SECURITY_CONTEXT
         SessionUtils.clearSessionExcept(session, "SPRING_SECURITY_CONTEXT");
         return "redirect:/annonces"; // Redirect to a relevant page
+    }
+
+    @GetMapping("/use")
+    public String saveRecherche(
+            @RequestParam(value = "searchTerm", required = false, defaultValue = "") String searchTerm,
+            @RequestParam(value = "zone", required = false, defaultValue = "") String zone,
+            @RequestParam(value = "etatObjets", required = false) List<String> etatObjets,
+            @RequestParam(value = "keywords", required = false, defaultValue = "") List<String> keywords) {
+
+        SessionUtils.clearSessionExcept(session, "SPRING_SECURITY_CONTEXT");
+
+        session.setAttribute("search", searchTerm);
+        session.setAttribute("zone", zone);
+        session.setAttribute("items", keywords.isEmpty() ? new ArrayList<>() : keywords); // Handle empty keywords
+
+        if (etatObjets != null) { // Check if etatObjets is present
+            for (String item : etatObjets) {
+                session.setAttribute(item, "true");
+            }
+        }
+        // Process the received parameters (searchTerm, zone, etatObjets, keywords)
+        // ... your logic to save or update the Recherche entity ...
+        return "redirect:/annonces"; // Redirect to the list of recherches.
     }
 
     @GetMapping("/save")
@@ -97,6 +130,20 @@ public class RechercheWebController {
         }
 
         items.add(key);
+        session.setAttribute("items", items);
+        return "redirect:/annonces?addkeyword=true";
+    }
+
+    @GetMapping("/removekeywordfilter")
+    public String reomveKeyword(@RequestParam String key, HttpSession session, Model model) {
+        @SuppressWarnings("unchecked")
+        List<String> items = (List<String>) session.getAttribute("items");
+
+        if (items == null) {
+            return "redirect:/annonces?addkeyword=true";
+        }
+
+        items.remove(key);
         session.setAttribute("items", items);
         return "redirect:/annonces?addkeyword=true";
     }

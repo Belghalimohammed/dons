@@ -25,6 +25,12 @@
         >
           Send Message
         </a>
+
+        <a
+          th:href="@{/modal/{annonceId}?oldPath={oldPath}(annonceId=${annonce.id}, oldPath=${oldPath})}"
+          class="btn btn-info me-2"
+          >Buy Now</a
+        >
         <form th:action="@{/groupes}" method="post">
           <input type="hidden" name="annonceId" th:value="${annonce.id}" />
           <button

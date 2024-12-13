@@ -2,6 +2,7 @@ package com.isima.dons.services;
 
 import com.isima.dons.entities.Annonce;
 import com.isima.dons.entities.Groupe;
+import com.isima.dons.entities.User;
 
 import java.util.List;
 
@@ -21,7 +22,7 @@ public interface GroupeService {
 
     boolean removeAnnonceFromGroupe(Long groupeId, Long annonceId);
 
-    Groupe validateGroupe(Long groupeId);
+    Groupe validateGroupe(User user, Long groupeId);
 
     List<Groupe> getGroupeByAcheteurAndNotTaken(Long userId);
 
