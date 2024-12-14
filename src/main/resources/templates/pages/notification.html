@@ -1,0 +1,46 @@
+<div th:if="${notifications}" class="cards-container" style="margin-top: 10px">
+    <div th:each="notification : ${notifications}" class="notification-card">
+        <div class="notification-header">
+            <span th:text="${notification.date}"></span> <!-- Display the notification date -->
+        </div>
+        <div class="notification-content">
+            <p th:text="${notification.content}"></p> <!-- Display the notification content -->
+        </div>
+        <div class="notification-footer">
+            <span th:text="${notification.annonce.titre}"></span> <!-- Display the associated annonce title -->
+        </div>
+    </div>
+</div>
+
+<style>
+    .cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.notification-card {
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.notification-header {
+    font-size: 12px;
+    color: #888;
+}
+
+.notification-content {
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+.notification-footer {
+    font-size: 14px;
+    margin-top: 10px;
+    color: #007bff;
+}
+
+</style>

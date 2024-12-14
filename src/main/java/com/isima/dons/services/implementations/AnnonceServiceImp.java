@@ -1,14 +1,12 @@
 package com.isima.dons.services.implementations;
 
-import com.isima.dons.entities.Annonce;
+import com.isima.dons.entities.*;
 import com.isima.dons.entities.Annonce.EtatObjet;
-import com.isima.dons.entities.FilterCriteria;
-import com.isima.dons.entities.Recherche;
-import com.isima.dons.entities.User;
 import com.isima.dons.repositories.AnnonceRepository;
 import com.isima.dons.repositories.AnnonceSpecification;
 import com.isima.dons.services.AnnonceService;
 
+import com.isima.dons.services.NotificationService;
 import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +33,9 @@ public class AnnonceServiceImp implements AnnonceService {
     @Autowired
     private AnnonceRepository annonceRepository;
 
+    @Autowired
+    NotificationService notificationService;
+
     public List<Annonce> getAllAnnonces() {
         String key = "";
         String zone = "";
@@ -50,8 +51,11 @@ public class AnnonceServiceImp implements AnnonceService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Annonce not found"));
     }
 
-    public Annonce createAnnonce(Annonce annonce) {
-        return annonceRepository.save(annonce);
+    public Annonce createAnnonce(Annonce annonce,Long userId) {
+
+        Annonce annonce1 = annonceRepository.save(annonce);
+        Notification notification = notificationService.pushNotification(annonce1,userId);
+        return annonce1;
     }
 
     @Override

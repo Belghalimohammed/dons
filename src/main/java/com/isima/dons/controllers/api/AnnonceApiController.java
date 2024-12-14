@@ -67,7 +67,7 @@ public class AnnonceApiController {
         annonce.setVendeur(userService.getUserById(userDetails.getId()));
         annonce.setKeywords(Arrays.asList(annonce.getKeywords().get(0).split(" ")));
 
-        Annonce createdAnnonce = annonceService.createAnnonce(annonce);
+        Annonce createdAnnonce = annonceService.createAnnonce(annonce,userDetails.getId());
         return ResponseEntity.ok(createdAnnonce);
     }
 

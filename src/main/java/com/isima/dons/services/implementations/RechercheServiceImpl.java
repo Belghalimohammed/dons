@@ -1,5 +1,6 @@
 package com.isima.dons.services.implementations;
 
+import com.isima.dons.entities.Annonce;
 import com.isima.dons.entities.Recherche;
 import com.isima.dons.entities.User;
 import com.isima.dons.repositories.RechercheRepository;
@@ -79,5 +80,10 @@ public class RechercheServiceImpl implements RechercheService {
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recherche not found");
         }
+    }
+
+    @Override
+    public List<Recherche> getRechercheByAnnonce(Annonce annonce) {
+        return rechercheRepository.findByAnnonce(annonce.getTitre(), annonce.getKeywords(),annonce.getZone());
     }
 }

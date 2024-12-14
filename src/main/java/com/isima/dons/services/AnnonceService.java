@@ -28,7 +28,7 @@ public interface AnnonceService {
 
     List<Annonce> getAnnoncesByAcheteur(User acheteur);
 
-    Annonce createAnnonce(Annonce annonce);
+    Annonce createAnnonce(Annonce annonce,Long userId);
 
     Annonce updateAnnonce(Long id, Annonce updatedAnnonce);
 

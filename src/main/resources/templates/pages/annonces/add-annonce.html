@@ -19,18 +19,21 @@
       <option value="CommeNeuf">Comme Neuf</option>
       <option value="TresBonEtat">Tres Bon Etat</option>
       <option value="Neuf">Neuf</option>
+      <option value="BonEtat">BonEtat</option>
+      <option value="EtatCorrect">EtatCorrect</option>
+      <option value="Occasion">Occasion</option>
     </select>
   </div>
   <div class="mb-3">
     <label for="zone" class="form-label">Zone:</label>
-    <input
-      type="text"
-      id="zone"
-      name="zone"
-      class="form-control"
-      step="any"
-      required
-    />
+    <select name="zone" class="form-control" aria-label="Zone">
+    <option
+            th:each="zoneOption : ${zones}"
+            th:value="${zoneOption}"
+            th:text="${zoneOption}"
+            th:selected="${zoneOption == zone}"
+    ></option>
+      </select>
   </div>
   <div class="mb-3 form-check">
     <input

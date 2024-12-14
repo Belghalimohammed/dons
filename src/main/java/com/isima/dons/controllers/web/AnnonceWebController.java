@@ -117,7 +117,9 @@ public class AnnonceWebController {
     }
 
     @GetMapping("/add")
-    public String addAnnoce(Model model) {
+    public String addAnnoce(Model model,HttpSession session) {
+        List<String> zones = annonceService.findDistinctZones();
+        model.addAttribute("zones", zones);
         model.addAttribute("content", "pages/annonces/add-annonce");
         return "home";
     }
@@ -177,7 +179,7 @@ public class AnnonceWebController {
         annonce.setVendeur(userService.getUserById(userDetails.getId()));
         System.out.println(annonce.getKeywords());
         annonce.setKeywords(Arrays.asList(annonce.getKeywords().get(0).split(" ")));
-        annonceService.createAnnonce(annonce);
+        annonceService.createAnnonce(annonce,userDetails.getId());
 
         return "redirect:/annonces/mes-annonces";
     }
