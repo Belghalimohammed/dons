@@ -5,6 +5,7 @@ import com.isima.dons.entities.User;
 import com.isima.dons.services.NotificationService;
 import com.isima.dons.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import java.security.Principal;
 
 @ControllerAdvice
+@Profile("!test")
 public class GlobalControllerAdvice {
 
     @Autowired
