@@ -45,6 +45,11 @@ public class NotificationServiceImp implements NotificationService {
                 .distinct()
                 .collect(Collectors.toList());
 
+        // Remove the user from the list of concerned users
+        usersConcerne = usersConcerne.stream()
+                .filter(u -> !u.getId().equals(userId)) // Exclude the user with the given ID
+                .collect(Collectors.toList());
+
         // Create NotificationUser entities and set 'seen' to false for each user
         List<NotificationUser> notificationUsers = usersConcerne.stream()
                 .map(u -> new NotificationUser(notification, u, false)) // Create NotificationUser for each user
@@ -56,6 +61,7 @@ public class NotificationServiceImp implements NotificationService {
         // Save the notification (this will also save the associated NotificationUser entities)
         return notificationRepository.save(notification);
     }
+
 
 
 
