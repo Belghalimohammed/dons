@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Error - Page Not Found</title>
+    <!-- Bootstrap CSS (from CDN) -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-light">
+    <div class="container text-center my-5">
+      <div class="row">
+        <div class="col-md-8 mx-auto">
+          <div class="error-page">
+            <!-- Display Error Code dynamically -->
+            <h1 class="display-1 text-danger" th:text="${errorCode}">404</h1>
+            <!-- Display Error Message dynamically -->
+            <h2 class="fw-light" th:text="${errorMessage}">
+              Oops! The page you're looking for could not be found.
+            </h2>
+            <p class="lead">
+              Sorry, but the page you are looking for does not exist, has been
+              removed, or is temporarily unavailable.
+            </p>
+            <a href="/" class="btn btn-primary mt-4">Back to Homepage</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

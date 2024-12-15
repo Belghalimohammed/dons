@@ -33,6 +33,7 @@
 /home/mohammed/Documents/school/web_project/last/dons/src/main/java/com/isima/dons/filters/JwtFilter.java
 /home/mohammed/Documents/school/web_project/last/dons/src/main/java/com/isima/dons/DonsApplication.java
 /home/mohammed/Documents/school/web_project/last/dons/src/main/java/com/isima/dons/controllers/web/AnnonceWebController.java
+/home/mohammed/Documents/school/web_project/last/dons/src/main/java/com/isima/dons/controllers/GlobalExceptionHandler.java
 /home/mohammed/Documents/school/web_project/last/dons/src/main/java/com/isima/dons/services/MessageService.java
 /home/mohammed/Documents/school/web_project/last/dons/src/main/java/com/isima/dons/entities/NotificationUser.java
 /home/mohammed/Documents/school/web_project/last/dons/src/main/java/com/isima/dons/services/JwtService.java
