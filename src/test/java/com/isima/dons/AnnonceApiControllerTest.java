@@ -8,6 +8,7 @@ import com.isima.dons.services.AnnonceService;
 import com.isima.dons.services.JwtService;
 import com.isima.dons.services.UserService;
 import com.isima.dons.services.implementations.Usersdetailservice;
+import org.hibernate.query.Page;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -15,7 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,8 +33,7 @@ import java.util.List;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
@@ -65,18 +67,23 @@ class AnnonceApiControllerTest {
                 annonce2.setTitre("Annonce 2");
 
                 List<Annonce> annonces = Arrays.asList(annonce1, annonce2);
+                PageImpl<Annonce> pageAnnonces = new PageImpl<>(annonces); // Wrap the list in a Page object
 
                 // Mock service call
-                when(annonceService.getAllAnnonces()).thenReturn(annonces);
+                when(annonceService.findFilteredAnnonces(null, null, null, null, 0)).thenReturn(pageAnnonces);
 
                 // Perform GET request and verify response
                 mockMvc.perform(get("/api/annonces")
-                                .contentType(MediaType.APPLICATION_JSON))
-                                .andExpect(status().isOk())
-                                .andExpect(jsonPath("$.length()").value(2)) // Check the length of the list
-                                .andExpect(jsonPath("[0].titre").value("Annonce 1")) // First item in the list
-                                .andExpect(jsonPath("[1].titre").value("Annonce 2")); // Second item in the list
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .param("page", "0")) // Add query parameters as needed
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.message").value("Annonces retrieved successfully")) // Check the success message
+                        .andExpect(jsonPath("$.status").value(200)) // Check the status code
+                        .andExpect(jsonPath("$.data.content.length()").value(2)) // Check the length of the list in 'data.content'
+                        .andExpect(jsonPath("$.data.content[0].titre").value("Annonce 1")) // First item in the list
+                        .andExpect(jsonPath("$.data.content[1].titre").value("Annonce 2")); // Second item in the list
         }
+
 
         @Test
         @WithMockUser(username = "test", roles = { "USER" })
@@ -92,8 +99,10 @@ class AnnonceApiControllerTest {
                 // Perform GET request and verify response
                 mockMvc.perform(get("/api/annonces/1")
                                 .contentType(MediaType.APPLICATION_JSON))
-                                .andExpect(status().isOk())
-                                .andExpect(jsonPath("$.titre").value("Annonce 1"));
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.message").value("Annonce retrieved successfully")) // Check the success message
+                        .andExpect(jsonPath("$.status").value(200)) // Check the status code
+                        .andExpect(jsonPath("$.data.titre").value("Annonce 1")); // Check the annonce title in the 'data' field
         }
 
         @BeforeEach
@@ -111,32 +120,48 @@ class AnnonceApiControllerTest {
         }
 
         @Test
+        @WithMockUser(username = "username", roles = { "USER" })
         void testCreateAnnonce() throws Exception {
-                // Mocking a user
+                // Mock user service to return a valid user
                 User user = new User(1L, "username", "test@test.com", "password");
+                Mockito.when(userService.getUserById(1L)).thenReturn(user);
 
-                // Mocking dependencies
+                // Mock UserPrincipale (authentication principal)
+                UserPrincipale userPrincipale = Mockito.mock(UserPrincipale.class);
+                Mockito.when(userPrincipale.getId()).thenReturn(1L);
+                Authentication authentication = new UsernamePasswordAuthenticationToken(userPrincipale, "password");
+
+                // Mock dependencies
                 Annonce annonce = new Annonce();
                 annonce.setTitre("Titre de test");
                 annonce.setDescription("Description de test");
                 annonce.setEtatObjet(Annonce.EtatObjet.Neuf);
                 annonce.setKeywords(Arrays.asList("test", "annonce"));
 
-                // Mock the service call
-                Mockito.when(annonceService.createAnnonce(Mockito.any(Annonce.class), Mockito.eq(user.getId())))
-                                .thenReturn(annonce);
+                // Mock service call
+                Mockito.when(annonceService.createAnnonce(Mockito.any(Annonce.class), Mockito.eq(1L)))
+                        .thenAnswer(invocation -> {
+                                Annonce createdAnnonce = invocation.getArgument(0);
+                                createdAnnonce.setId(1L); // Set the ID after creation
+                                return createdAnnonce;
+                        });
 
-                // Perform the test
+                // Perform POST request and verify response
                 mockMvc.perform(post("/api/annonces")
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(new ObjectMapper().writeValueAsString(annonce)))
-                                .andExpect(status().isOk())
-                                .andExpect(jsonPath("$.titre").value("Titre de test"))
-                                .andExpect(jsonPath("$.description").value("Description de test"))
-                                .andExpect(jsonPath("$.etatObjet").value("Neuf"))
-                                .andExpect(jsonPath("$.keywords[0]").value("test"))
-                                .andExpect(jsonPath("$.keywords[1]").value("annonce"));
+                                .content(new ObjectMapper().writeValueAsString(annonce))
+                                .principal(authentication))  // Set principal in the request
+                        .andExpect(status().isCreated()) // Expect 201 Created
+                        .andExpect(jsonPath("$.message").value("Annonce created successfully")) // Success message
+                        .andExpect(jsonPath("$.data.titre").value("Titre de test")) // Verify data fields
+                        .andExpect(jsonPath("$.data.description").value("Description de test"))
+                        .andExpect(jsonPath("$.data.etatObjet").value("Neuf"))
+                        .andExpect(jsonPath("$.data.keywords[0]").value("test"))
+                        .andExpect(jsonPath("$.data.keywords[1]").value("annonce"))
+                        .andExpect(header().string("Location", "/api/annonces/1")); // Check location header
         }
+
+
 
         @Test
         void updateAnnonce_shouldReturnUpdatedAnnonce() throws Exception {
@@ -158,27 +183,29 @@ class AnnonceApiControllerTest {
                 // Mocking service behavior
                 Mockito.when(annonceService.getAnnonceById(annonceId)).thenReturn(existingAnnonce);
                 Mockito.when(annonceService.updateAnnonce(Mockito.eq(annonceId), Mockito.any(Annonce.class)))
-                                .thenReturn(updatedAnnonce);
+                        .thenReturn(updatedAnnonce);
 
                 // Request body for the update
                 String updatedAnnonceJson = "{" +
-                                "\"titre\": \"Updated Title\"," +
-                                "\"description\": \"Updated Description\"," +
-                                "\"keywords\": [\"updated keywords\"]" +
-                                "}";
+                        "\"titre\": \"Updated Title\"," +
+                        "\"description\": \"Updated Description\"," +
+                        "\"keywords\": [\"updated\", \"keywords\"]" +
+                        "}";
 
                 mockMvc.perform(MockMvcRequestBuilders.put("/api/annonces/{id}", annonceId)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(updatedAnnonceJson))
-                                .andExpect(status().isOk())
-                                .andExpect(jsonPath("$.titre").value("Updated Title"))
-                                .andExpect(jsonPath("$.description").value("Updated Description"))
-                                .andExpect(jsonPath("$.keywords[0]").value("updated"))
-                                .andExpect(jsonPath("$.keywords[1]").value("keywords"));
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.message").value("Annonce updated successfully")) // Check message
+                        .andExpect(jsonPath("$.data.titre").value("Updated Title")) // Verify updated title
+                        .andExpect(jsonPath("$.data.description").value("Updated Description")) // Verify updated description
+                        .andExpect(jsonPath("$.data.keywords[0]").value("updated")) // Verify first keyword
+                        .andExpect(jsonPath("$.data.keywords[1]").value("keywords")); // Verify second keyword
 
                 // Verify service calls
                 Mockito.verify(annonceService).getAnnonceById(annonceId);
                 Mockito.verify(annonceService).updateAnnonce(Mockito.eq(annonceId), Mockito.any(Annonce.class));
         }
+
 
 }

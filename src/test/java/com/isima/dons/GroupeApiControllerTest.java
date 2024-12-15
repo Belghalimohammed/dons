@@ -55,8 +55,8 @@ public class GroupeApiControllerTest {
         User mockUser = new User();
         mockUser.setId(1L);
 
-        List<Groupe> groupes = List.of(new Groupe());
-        List<Annonce> annonces = List.of(new Annonce());
+        List<Groupe> groupes = List.of(new Groupe()); // Mock list of groupes
+        List<Annonce> annonces = List.of(new Annonce()); // Mock list of annonces
 
         Mockito.when(userService.getUserById(1L)).thenReturn(mockUser);
         Mockito.when(groupeService.getGroupeByAcheteurAndNotTaken(1L)).thenReturn(groupes);
@@ -64,8 +64,9 @@ public class GroupeApiControllerTest {
 
         mockMvc.perform(get("/api/groupes").principal(authentication))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.groupe").exists())
-                .andExpect(jsonPath("$.annonces").isArray());
+                .andExpect(jsonPath("$.status").value("success")) // Check for success status
+                .andExpect(jsonPath("$.data").isArray()) // Check that 'data' is an array (groupes)
+                .andExpect(jsonPath("$.data.length()").value(groupes.size())); // Check the number of groupes in 'data'
     }
 
     @Test
@@ -93,15 +94,18 @@ public class GroupeApiControllerTest {
         User mockUser = new User();
         mockUser.setId(1L);
 
-        List<Groupe> groupes = List.of(new Groupe());
+        List<Groupe> groupes = List.of(new Groupe()); // Mock list of validated groupes
 
         Mockito.when(userService.getUserById(1L)).thenReturn(mockUser);
         Mockito.when(groupeService.getGroupeByAcheteurAndTaken(1L)).thenReturn(groupes);
 
         mockMvc.perform(get("/api/groupes/valide").principal(authentication))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0]").exists());
+                .andExpect(status().isOk()) // Check that the status is OK (200)
+                .andExpect(jsonPath("$.status").value("success")) // Check for 'status' field with value 'success'
+                .andExpect(jsonPath("$.data").isArray()) // Check that 'data' is an array
+                .andExpect(jsonPath("$.data.length()").value(groupes.size())); // Check the length of 'data' matches the size of groupes
     }
+
 
     @Test
     void testCreateGroupe() throws Exception {
@@ -112,14 +116,22 @@ public class GroupeApiControllerTest {
         User mockUser = new User();
         mockUser.setId(1L);
 
+        // Mocking service behavior
+        Groupe mockGroupe = new Groupe(); // Mock the created Groupe
+        mockGroupe.setId(1L); // Assuming the created group has an ID
+
         Mockito.when(userService.getUserById(1L)).thenReturn(mockUser);
+        Mockito.when(groupeService.createGroupe(Mockito.anyLong(), Mockito.anyLong())).thenReturn(mockGroupe);
 
         mockMvc.perform(post("/api/groupes")
-                .param("annonceId", "1")
-                .principal(authentication))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Groupe created successfully"));
+                        .param("annonceId", "1")
+                        .principal(authentication))
+                .andExpect(status().isCreated()) // Check for 201 Created status
+                .andExpect(jsonPath("$.status").value("success")) // Check for 'status' field with value 'success'
+                .andExpect(jsonPath("$.data.id").value(1L)) // Check that the created Groupe has the expected ID
+                .andExpect(jsonPath("$.data").exists()); // Ensure 'data' is not null
     }
+
 
     @Test
     void testValidateGroupe() throws Exception {
@@ -143,34 +155,40 @@ public class GroupeApiControllerTest {
 
         // Perform the test
         mockMvc.perform(post("/api/groupes/validate")
-                .param("groupeId", "1")
-                .principal(authentication))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Groupe validated successfully"));
+                        .param("groupeId", "1")
+                        .principal(authentication))
+                .andExpect(status().isNoContent()) // Check for 204 No Content status
+                .andExpect(jsonPath("$.status").value("success")) // Check for 'status' field with value 'success'
+                .andExpect(jsonPath("$.message").value("Groupe validated successfully.")); // Check for 'message' field
 
         // Clear the SecurityContext after the test
         SecurityContextHolder.clearContext();
     }
 
+
     @Test
     void testRemoveAnnonceFromGroupe_Success() throws Exception {
+        // Mocking the service call to return true (indicating success)
         Mockito.when(groupeService.removeAnnonceFromGroupe(1L, 1L)).thenReturn(true);
 
-        mockMvc.perform(delete("/api/groupes")
-                .param("groupeId", "1")
-                .param("annonceId", "1"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Annonce removed from groupe successfully"));
+        // Perform the DELETE request and verify the response
+        mockMvc.perform(delete("/api/groupes/{groupeId}/annonces/{annonceId}", 1L, 1L))
+                .andExpect(status().isNoContent()) // Expecting 204 No Content status
+                .andExpect(jsonPath("$.status").value("success")) // Check 'status' field
+                .andExpect(jsonPath("$.message").value("Annonce removed successfully.")); // Check 'message' field
     }
+
 
     @Test
     void testRemoveAnnonceFromGroupe_Failure() throws Exception {
+        // Mocking the service call to return false (indicating failure)
         Mockito.when(groupeService.removeAnnonceFromGroupe(1L, 1L)).thenReturn(false);
 
-        mockMvc.perform(delete("/api/groupes")
-                .param("groupeId", "1")
-                .param("annonceId", "1"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("Failed to remove annonce from groupe"));
+        // Perform the DELETE request and verify the response
+        mockMvc.perform(delete("/api/groupes/{groupeId}/annonces/{annonceId}", 1L, 1L))
+                .andExpect(status().isNotFound()) // Expecting 404 Not Found status
+                .andExpect(jsonPath("$.status").value("fail")) // Check 'status' field
+                .andExpect(jsonPath("$.message").value("Groupe or Annonce not found.")); // Check 'message' field
     }
+
 }

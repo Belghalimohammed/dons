@@ -105,7 +105,7 @@ public class AnnonceApiController {
     public ResponseEntity<Object> createAnnonce(@RequestBody Annonce annonce, Authentication authentication) {
         UserPrincipale userDetails = (UserPrincipale) authentication.getPrincipal();
         annonce.setDatePublication(LocalDate.now());
-        annonce.setVendeur(userService.getUserById(userDetails.getId()));
+        annonce.setVendeur(userService.getUserById(userDetails.getId())); // Ensure this does not return null
         annonceService.createAnnonce(annonce, userDetails.getId());
 
         URI location = URI.create("/api/annonces/" + annonce.getId());
@@ -119,6 +119,8 @@ public class AnnonceApiController {
 
         return ResponseEntity.created(location).body(response);
     }
+
+
 
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateAnnonce(@PathVariable Long id, @RequestBody Annonce updatedAnnonce) {

@@ -81,6 +81,14 @@ public class MessageApiController {
         User sender = userService.getUserById(userDetails.getId());
         User receiver = userService.getUserById(receiverId);
 
+        // Check if receiver exists
+        if (receiver == null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "fail");
+            response.put("message", "Receiver not found");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response); // Return 400 Bad Request
+        }
+
         // Create and save the message
         Message message = new Message();
         message.setSender(sender);
@@ -94,6 +102,7 @@ public class MessageApiController {
         response.put("data", message);
         return ResponseEntity.status(HttpStatus.CREATED).body(response); // Return the created message
     }
+
 
     // Delete a message
     @DeleteMapping("/{messageId}")
