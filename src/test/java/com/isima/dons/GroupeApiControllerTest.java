@@ -1,7 +1,6 @@
 package com.isima.dons;
 
 import com.isima.dons.configuration.UserPrincipale;
-import com.isima.dons.controllers.api.GroupeApiController;
 import com.isima.dons.entities.Annonce;
 import com.isima.dons.entities.Groupe;
 import com.isima.dons.entities.User;
@@ -14,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

@@ -7,19 +7,13 @@ import com.isima.dons.services.MessageService;
 import com.isima.dons.services.UserService;
 import org.springframework.ui.Model;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.stereotype.Controller;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/messages")
@@ -41,9 +35,7 @@ public class MessageWebController {
         UserPrincipale userDetails = (UserPrincipale) authentication.getPrincipal();
 
         List<User> conversations = messageService.getConversationsByUserId(userDetails.getId());
-        for (User user : conversations) {
-            System.out.println("---" + user.getUsername());
-        }
+
         model.addAttribute("conversations", conversations);
         model.addAttribute("content", "pages/messages/conversations");
         return "home";
@@ -67,7 +59,6 @@ public class MessageWebController {
 
     @PostMapping("/{receiverId}")
     public String createMessage(@PathVariable Long receiverId, @RequestParam String msg) {
-        System.out.println("Receiver ID: " + receiverId);
 
         // Get the authenticated user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

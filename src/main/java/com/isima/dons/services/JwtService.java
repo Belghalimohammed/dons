@@ -37,7 +37,6 @@ public class JwtService {
 
     public String extractUsernameFromToken(String token) {
         try {
-            System.out.println("Token: " + token);
             Claims claims = extractAllClaims(token);
             return claims.getSubject();
         } catch (Exception e) {

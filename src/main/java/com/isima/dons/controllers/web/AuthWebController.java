@@ -3,9 +3,6 @@ package com.isima.dons.controllers.web;
 import com.isima.dons.entities.User;
 import com.isima.dons.services.UserService;
 
-import java.beans.Encoder;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,7 +15,6 @@ public class AuthWebController {
 
     private final UserService userService;
 
-    @Autowired
     public AuthWebController(UserService userService) {
         this.userService = userService;
     }
@@ -41,7 +37,6 @@ public class AuthWebController {
         newUser.setUsername(username);
         newUser.setEmail(email);
         newUser.setPassword(encoder.encode(password));
-        System.out.println(newUser);
         if (userService.createUser(newUser) == null) {
             return "redirect:/signup?error=true";
         }

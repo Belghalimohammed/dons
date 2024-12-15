@@ -5,12 +5,10 @@ import com.isima.dons.repositories.NotificationRepository;
 import com.isima.dons.repositories.NotificationUserRepository;
 import com.isima.dons.services.NotificationService;
 import com.isima.dons.services.RechercheService;
-import com.isima.dons.services.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -26,14 +24,10 @@ public class NotificationServiceImp implements NotificationService {
     private NotificationRepository notificationRepository;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
     private NotificationUserRepository notificationUserRepository;
 
     @Override
     public Notification pushNotification(Annonce annonce, Long userId) {
-        User user = userService.getUserById(userId);
         Notification notification = new Notification();
         notification.setAnnonce(annonce);
         notification.setContent("une nouvelle annonce a été créée par " + annonce.getVendeur().getUsername() + ": "
@@ -66,9 +60,7 @@ public class NotificationServiceImp implements NotificationService {
     }
 
     public List<Notification> getNotification(User user) {
-        System.out.println(user.getUsername());
         List<Notification> notifications = notificationRepository.findNotificationByUser(user);
-        System.out.println(notifications);
         return notifications;
     }
 

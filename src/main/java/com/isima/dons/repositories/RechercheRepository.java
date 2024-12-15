@@ -2,7 +2,6 @@ package com.isima.dons.repositories;
 
 import java.util.List;
 
-import com.isima.dons.entities.Annonce;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,13 +23,10 @@ public interface RechercheRepository extends JpaRepository<Recherche, Long> {
                         String searchTerm);
 
         @Query("SELECT r FROM Recherche r WHERE r.searchTerm = :searchTerm " +
-                "OR EXISTS (SELECT 1 FROM r.keywordsList k WHERE k IN :keywords) " +
-                "OR r.zone = :zone")
+                        "OR EXISTS (SELECT 1 FROM r.keywordsList k WHERE k IN :keywords) " +
+                        "OR r.zone = :zone")
         List<Recherche> findByAnnonce(@Param("searchTerm") String searchTerm,
-                                      @Param("keywords") List<String> keywords,
-                                      @Param("zone") String zone);
-
-
-
+                        @Param("keywords") List<String> keywords,
+                        @Param("zone") String zone);
 
 }

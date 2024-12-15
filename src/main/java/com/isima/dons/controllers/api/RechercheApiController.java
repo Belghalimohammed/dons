@@ -1,12 +1,9 @@
 package com.isima.dons.controllers.api;
 
-import com.isima.dons.configuration.SessionUtils;
 import com.isima.dons.entities.Annonce;
 import com.isima.dons.entities.Recherche;
 import com.isima.dons.services.AnnonceService;
 import com.isima.dons.services.RechercheService;
-
-import jakarta.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,46 +27,99 @@ public class RechercheApiController {
 
     // Fetch all recherches
     @GetMapping
-    public ResponseEntity<List<Recherche>> getAllRecherches() {
+    public ResponseEntity<Map<String, Object>> getAllRecherches() {
         List<Recherche> recherches = rechercheService.getAllRecherches();
-        return new ResponseEntity<>(recherches, HttpStatus.OK);
+        Map<String, Object> response = new HashMap<>();
+        if (recherches.isEmpty()) {
+            response.put("status", "fail");
+            response.put("message", "No recherches found.");
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response); // No recherches found
+        } else {
+            response.put("status", "success");
+            response.put("data", recherches);
+            return ResponseEntity.ok(response); // Return recherches list
+        }
     }
 
     // Use search parameters to set session values for filtering
     @GetMapping("/use/{id}")
-    public ResponseEntity<List<Annonce>> saveRecherche(@PathVariable("id") Long id) {
+    public ResponseEntity<Map<String, Object>> saveRecherche(@PathVariable("id") Long id) {
         Recherche recherche = rechercheService.getRechercheById(id);
-        List<Annonce> recherches = annonceService.findAllFilteredAnnonces(recherche.getSearchTerm(),
-                recherche.getZone(), recherche.getKeywordsList(), recherche.getEtatObjetList());
-        return new ResponseEntity<>(recherches, HttpStatus.OK);
+        if (recherche == null) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "fail");
+            response.put("message", "Recherche not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response); // Recherche not found
+        }
+
+        List<Annonce> annonces = annonceService.findAllFilteredAnnonces(
+                recherche.getSearchTerm(), recherche.getZone(),
+                recherche.getKeywordsList(), recherche.getEtatObjetList());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("data", annonces);
+        return ResponseEntity.ok(response); // Return filtered annonces
     }
 
+    // Get Recherche by id
     @GetMapping("/{id}")
-    public ResponseEntity<?> getRechercheById(@PathVariable("id") Long id) {
+    public ResponseEntity<Map<String, Object>> getRechercheById(@PathVariable("id") Long id) {
         try {
             Recherche recherche = rechercheService.getRechercheById(id); // This will throw if not found
-            return new ResponseEntity<>(recherche, HttpStatus.OK);
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "success");
+            response.put("data", recherche);
+            return ResponseEntity.ok(response); // Return the recherche
         } catch (ResponseStatusException e) {
-            // Use getStatusCode() instead of getStatus()
+            Map<String, Object> response = new HashMap<>();
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                return new ResponseEntity<>("Recherche not found with id " + id, HttpStatus.NOT_FOUND);
+                response.put("status", "fail");
+                response.put("message", "Recherche not found with id " + id);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response); // Recherche not found
             }
             throw e; // Propagate other exceptions
         }
     }
 
-    // 2. Update Recherche
+    // Update Recherche
     @PutMapping("/{id}")
-    public ResponseEntity<Recherche> updateRecherche(@PathVariable("id") Long id,
+    public ResponseEntity<Map<String, Object>> updateRecherche(@PathVariable("id") Long id,
             @RequestBody Recherche updatedRecherche) {
-        Recherche updated = rechercheService.updateRecherche(id, updatedRecherche);
-        return new ResponseEntity<>(updated, HttpStatus.OK);
+        try {
+            Recherche updated = rechercheService.updateRecherche(id, updatedRecherche);
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "success");
+            response.put("data", updated);
+            return ResponseEntity.ok(response); // Return updated recherche
+        } catch (ResponseStatusException e) {
+            Map<String, Object> response = new HashMap<>();
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                response.put("status", "fail");
+                response.put("message", "Recherche not found with id " + id);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response); // Recherche not found
+            }
+            throw e; // Propagate other exceptions
+        }
     }
 
-    // 3. Delete Recherche
+    // Delete Recherche
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRecherche(@PathVariable("id") Long id) {
-        rechercheService.deleteRecherche(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    public ResponseEntity<Map<String, Object>> deleteRecherche(@PathVariable("id") Long id) {
+        try {
+            rechercheService.deleteRecherche(id);
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "success");
+            response.put("message", "Recherche deleted successfully.");
+            return ResponseEntity.noContent().build(); // No Content for successful deletion
+        } catch (ResponseStatusException e) {
+            Map<String, Object> response = new HashMap<>();
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                response.put("status", "fail");
+                response.put("message", "Recherche not found with id " + id);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response); // Recherche not found
+            }
+            throw e; // Propagate other exceptions
+        }
     }
 }

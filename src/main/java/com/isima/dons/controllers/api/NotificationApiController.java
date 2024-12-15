@@ -9,16 +9,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/notifications")
@@ -33,7 +33,7 @@ public class NotificationApiController {
     // Mark notifications as seen and return the updated list of notifications for
     // the user
     @PutMapping("/markAsSeen")
-    public ResponseEntity<Void> markNotificationsAsSeen(Authentication authentication) {
+    public ResponseEntity<Map<String, Object>> markNotificationsAsSeen(Authentication authentication) {
         // Get the authenticated user
         UserPrincipale userDetails = (UserPrincipale) authentication.getPrincipal();
         User user = userService.getUserById(userDetails.getId());
@@ -41,13 +41,14 @@ public class NotificationApiController {
         // Mark notifications as seen
         notifservice.markNotificationsAsSeen(user);
 
-        // Return a 204 No Content status indicating successful operation
-        return ResponseEntity.noContent().build();
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("message", "Notifications marked as seen.");
+        return ResponseEntity.noContent().build(); // No Content as there's no data to return
     }
 
-    // Get all notifications for the authenticated user
     @GetMapping
-    public ResponseEntity<List<Notification>> getNotifications(Authentication authentication) {
+    public ResponseEntity<Map<String, Object>> getNotifications(Authentication authentication) {
         // Get the authenticated user
         UserPrincipale userDetails = (UserPrincipale) authentication.getPrincipal();
         User user = userService.getUserById(userDetails.getId());
@@ -55,42 +56,51 @@ public class NotificationApiController {
         // Retrieve notifications for the user
         List<Notification> notifications = notifservice.getNotification(user);
 
+        Map<String, Object> response = new HashMap<>();
         if (notifications.isEmpty()) {
-            // If no notifications found, return 204 No Content
-            return ResponseEntity.noContent().build();
+            response.put("status", "fail");
+            response.put("message", "No notifications found.");
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response); // No notifications found
         } else {
-            // Return the notifications list with a 200 OK status
-            return ResponseEntity.ok(notifications);
+            response.put("status", "success");
+            response.put("data", notifications);
+            return ResponseEntity.ok(response); // Return notifications list
         }
     }
 
     // Get a specific notification by ID
     @GetMapping("/{notificationId}")
-    public ResponseEntity<Notification> getNotificationById(@PathVariable Long notificationId) {
+    public ResponseEntity<Map<String, Object>> getNotificationById(@PathVariable Long notificationId) {
         // Fetch the notification by ID
         Notification notification = notifservice.getNotificationById(notificationId);
 
+        Map<String, Object> response = new HashMap<>();
         if (notification == null) {
-            // If the notification is not found, return a 404 Not Found response
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            response.put("status", "fail");
+            response.put("message", "Notification not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response); // Notification not found
         }
 
-        // Return the notification with a 200 OK status
-        return ResponseEntity.ok(notification);
+        response.put("status", "success");
+        response.put("data", notification);
+        return ResponseEntity.ok(response); // Return the notification
     }
 
     // Delete a notification by ID
     @DeleteMapping("/{notificationId}")
-    public ResponseEntity<Void> deleteNotification(@PathVariable Long notificationId) {
+    public ResponseEntity<Map<String, Object>> deleteNotification(@PathVariable Long notificationId) {
         // Delete the notification
         boolean isDeleted = notifservice.deleteNotification(notificationId);
 
+        Map<String, Object> response = new HashMap<>();
         if (isDeleted) {
-            // Return 204 No Content if the deletion was successful
-            return ResponseEntity.noContent().build();
+            response.put("status", "success");
+            response.put("message", "Notification deleted successfully.");
+            return ResponseEntity.noContent().build(); // No Content for successful deletion
         } else {
-            // Return 404 Not Found if the notification doesn't exist
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            response.put("status", "fail");
+            response.put("message", "Notification not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response); // Notification not found
         }
     }
 }

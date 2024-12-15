@@ -1,6 +1,5 @@
 package com.isima.dons.controllers.web;
 
-import java.net.URI;
 import java.time.LocalDate;
 import com.isima.dons.entities.Annonce;
 import com.isima.dons.entities.Recherche;
@@ -10,16 +9,11 @@ import com.isima.dons.services.RechercheService;
 import com.isima.dons.services.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -40,7 +34,6 @@ public class AnnonceWebController {
     @Autowired
     private RechercheService rechercheservice;
 
-    @Autowired
     public AnnonceWebController(AnnonceService annonceService, UserService userService) {
         this.annonceService = annonceService;
         this.userService = userService;
@@ -131,8 +124,6 @@ public class AnnonceWebController {
     public String mesAnnonces(Model model, Authentication authentication) {
         UserPrincipale userPrincipale = (UserPrincipale) authentication.getPrincipal();
         User user = userService.getUserById(userPrincipale.getId());
-        System.out.println(user.getUsername());
-        System.out.println("the user ID " + user.getId());
         List<Annonce> annonces = annonceService.getAnnoncesByUser(user.getId()); // Fetch annonces
         model.addAttribute("annonces", annonces); // Pass annonces to the model
         model.addAttribute("content", "pages/annonces/mes-annonces");
@@ -175,12 +166,10 @@ public class AnnonceWebController {
 
     @PostMapping
     public String createAnnonce(@ModelAttribute Annonce annonce) {
-        System.out.println("la zone : " + annonce.getZone());
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserPrincipale userDetails = (UserPrincipale) authentication.getPrincipal();
         annonce.setDatePublication(LocalDate.now());
         annonce.setVendeur(userService.getUserById(userDetails.getId()));
-        System.out.println(annonce.getKeywords());
         annonce.setKeywords(Arrays.asList(annonce.getKeywords().get(0).split(" ")));
         annonceService.createAnnonce(annonce, userDetails.getId());
 
@@ -240,7 +229,6 @@ public class AnnonceWebController {
     public String listFavoris(Authentication authentication, Model model, HttpServletRequest request) {
         UserPrincipale userPrincipale = (UserPrincipale) authentication.getPrincipal();
         User user = userService.getUserById(userPrincipale.getId());
-        System.out.println("///////////////////////////////////////////////" + request.getRequestURI());
         model.addAttribute("favoris", user.getFavoris());
         model.addAttribute("oldPath", request.getRequestURI());
 

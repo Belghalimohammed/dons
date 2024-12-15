@@ -4,7 +4,6 @@ import com.isima.dons.entities.Message;
 import com.isima.dons.entities.User;
 import com.isima.dons.repositories.MessageRepository;
 import com.isima.dons.services.MessageService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -17,7 +16,6 @@ public class MessageServiceImpl implements MessageService {
 
     private final MessageRepository messageRepository;
 
-    @Autowired
     public MessageServiceImpl(MessageRepository messageRepository) {
         this.messageRepository = messageRepository;
     }

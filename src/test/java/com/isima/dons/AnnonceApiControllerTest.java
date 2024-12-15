@@ -16,7 +16,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -115,8 +114,6 @@ class AnnonceApiControllerTest {
         void testCreateAnnonce() throws Exception {
                 // Mocking a user
                 User user = new User(1L, "username", "test@test.com", "password");
-                UserPrincipale userPrincipale = new UserPrincipale(user);
-                Authentication authentication = new UsernamePasswordAuthenticationToken(userPrincipale, null);
 
                 // Mocking dependencies
                 Annonce annonce = new Annonce();

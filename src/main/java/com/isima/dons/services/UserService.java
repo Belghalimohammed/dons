@@ -4,9 +4,6 @@ import com.isima.dons.entities.User;
 
 import java.util.List;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-
 public interface UserService {
 
     List<User> getAllUsers();
@@ -23,7 +20,7 @@ public interface UserService {
 
     User removeFavorisToUserUser(long id, Long annonceId);
 
-    void deleteUser(Long id);
+    Boolean deleteUser(Long id);
 
     User login(String email, String password); // New method for login
 }

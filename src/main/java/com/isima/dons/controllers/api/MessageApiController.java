@@ -13,7 +13,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/messages")
@@ -31,20 +33,25 @@ public class MessageApiController {
 
     // Get the list of conversations for the authenticated user
     @GetMapping
-    public ResponseEntity<List<User>> getConversations(Authentication authentication) {
+    public ResponseEntity<Map<String, Object>> getConversations(Authentication authentication) {
         UserPrincipale userPrincipale = (UserPrincipale) authentication.getPrincipal();
         List<User> conversations = messageService.getConversationsByUserId(userPrincipale.getId());
 
+        Map<String, Object> response = new HashMap<>();
         if (!conversations.isEmpty()) {
-            return ResponseEntity.ok(conversations);
+            response.put("status", "success");
+            response.put("data", conversations);
+            return ResponseEntity.ok(response);
         } else {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // No conversations found
+            response.put("status", "fail");
+            response.put("message", "No conversations found.");
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
         }
     }
 
     // Get the conversation between the authenticated user and the receiver
     @GetMapping("/{receiverId}")
-    public ResponseEntity<List<Message>> getConversation(
+    public ResponseEntity<Map<String, Object>> getConversation(
             @PathVariable Long receiverId, Authentication authentication) {
 
         UserPrincipale userDetails = (UserPrincipale) authentication.getPrincipal();
@@ -53,16 +60,21 @@ public class MessageApiController {
         // Fetch the conversation between sender and receiver
         List<Message> conversation = messageService.getConversation(senderId, receiverId);
 
+        Map<String, Object> response = new HashMap<>();
         if (!conversation.isEmpty()) {
-            return ResponseEntity.ok(conversation);
+            response.put("status", "success");
+            response.put("data", conversation);
+            return ResponseEntity.ok(response);
         } else {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // No conversation found
+            response.put("status", "fail");
+            response.put("message", "No conversation found.");
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
         }
     }
 
     // Create a new message
     @PostMapping("/{receiverId}")
-    public ResponseEntity<Message> createMessage(
+    public ResponseEntity<Map<String, Object>> createMessage(
             @PathVariable Long receiverId, @RequestBody String msg, Authentication authentication) {
 
         UserPrincipale userDetails = (UserPrincipale) authentication.getPrincipal();
@@ -77,16 +89,24 @@ public class MessageApiController {
         message.setSentDate(LocalDateTime.now());
         messageService.createMessage(message);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(message); // Return the created message
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("data", message);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response); // Return the created message
     }
 
     // Delete a message
     @DeleteMapping("/{messageId}")
-    public ResponseEntity<Void> deleteMessage(@PathVariable Long messageId, Authentication authentication) {
+    public ResponseEntity<Map<String, Object>> deleteMessage(@PathVariable Long messageId,
+            Authentication authentication) {
         // Check if the message exists
         Message message = messageService.getMessageById(messageId);
+        Map<String, Object> response = new HashMap<>();
+
         if (message == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // Message not found
+            response.put("status", "fail");
+            response.put("message", "Message not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
 
         // Only allow the sender or receiver to delete the message
@@ -95,23 +115,31 @@ public class MessageApiController {
         Long userId = userDetails.getId();
 
         if (!message.getSender().getId().equals(userId) && !message.getReciever().getId().equals(userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // User is not authorized to delete
+            response.put("status", "fail");
+            response.put("message", "User is not authorized to delete this message.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response); // User is not authorized
         }
 
         // Delete the message
         messageService.deleteMessage(messageId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // Message deleted successfully
+        response.put("status", "success");
+        response.put("message", "Message deleted successfully.");
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response); // Message deleted successfully
     }
 
     // Update a message
     @PutMapping("/{messageId}")
-    public ResponseEntity<Message> updateMessage(
+    public ResponseEntity<Map<String, Object>> updateMessage(
             @PathVariable Long messageId, @RequestBody String newMessageContent, Authentication authentication) {
 
         // Check if the message exists
         Message message = messageService.getMessageById(messageId);
+        Map<String, Object> response = new HashMap<>();
+
         if (message == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // Message not found
+            response.put("status", "fail");
+            response.put("message", "Message not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response); // Message not found
         }
 
         // Only allow the sender to update the message
@@ -120,7 +148,9 @@ public class MessageApiController {
         Long userId = userDetails.getId();
 
         if (!message.getSender().getId().equals(userId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // User is not authorized to update
+            response.put("status", "fail");
+            response.put("message", "User is not authorized to update this message.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response); // User is not authorized
         }
 
         // Update the message content
@@ -130,6 +160,8 @@ public class MessageApiController {
         // Save the updated message
         messageService.createMessage(message);
 
-        return ResponseEntity.ok(message); // Return the updated message
+        response.put("status", "success");
+        response.put("data", message);
+        return ResponseEntity.ok(response); // Return the updated message
     }
 }

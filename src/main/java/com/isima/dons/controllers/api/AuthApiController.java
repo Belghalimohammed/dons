@@ -3,19 +3,15 @@ package com.isima.dons.controllers.api;
 import com.isima.dons.entities.User;
 import com.isima.dons.services.UserService;
 
-import java.beans.Encoder;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -24,14 +20,31 @@ public class AuthApiController {
 
     private final UserService userService;
 
-    @Autowired
     public AuthApiController(UserService userService) {
         this.userService = userService;
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody User user) {
-        return userService.verify(user);
+    public ResponseEntity<Object> login(@RequestBody User user) {
+        // Verify the user credentials using the userService
+        String token = userService.verify(user);
+
+        if (token == null || token.isEmpty()) {
+            // If token is null or empty, return an error message (Unauthorized)
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Invalid username or password");
+            response.put("status", HttpStatus.UNAUTHORIZED.value());
+
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        // If successful, return a success message along with the token (200 OK)
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Login successful");
+        response.put("status", HttpStatus.OK.value());
+        response.put("token", token); // Assuming the token is returned after successful login
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/signup")

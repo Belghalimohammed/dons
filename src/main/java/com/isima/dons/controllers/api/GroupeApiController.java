@@ -12,7 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/groupes")
@@ -26,127 +28,166 @@ public class GroupeApiController {
 
     // Get all non-valid groups for the authenticated user
     @GetMapping
-    public ResponseEntity<List<Groupe>> getAllNonValideGroupes(Authentication authentication) {
+    public ResponseEntity<Map<String, Object>> getAllNonValideGroupes(Authentication authentication) {
         UserPrincipale userPrincipale = (UserPrincipale) authentication.getPrincipal();
         User user = userService.getUserById(userPrincipale.getId());
 
         List<Groupe> groupes = groupeService.getGroupeByAcheteurAndNotTaken(user.getId());
 
+        Map<String, Object> response = new HashMap<>();
         if (!groupes.isEmpty()) {
-            return ResponseEntity.ok(groupes);
+            response.put("status", "success");
+            response.put("data", groupes);
+            return ResponseEntity.ok(response);
         } else {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // No groups found
+            response.put("status", "fail");
+            response.put("message", "No groupes found.");
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
         }
     }
 
     // Get all valid groups for the authenticated user
     @GetMapping("/valide")
-    public ResponseEntity<List<Groupe>> getAllValideGroupes(Authentication authentication) {
+    public ResponseEntity<Map<String, Object>> getAllValideGroupes(Authentication authentication) {
         UserPrincipale userPrincipale = (UserPrincipale) authentication.getPrincipal();
         User user = userService.getUserById(userPrincipale.getId());
 
         List<Groupe> groupes = groupeService.getGroupeByAcheteurAndTaken(user.getId());
 
-        return ResponseEntity.ok(groupes);
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("data", groupes);
+        return ResponseEntity.ok(response);
     }
 
     // Get all annonces in a specific groupe
     @GetMapping("/{groupeId}/annonces")
-    public ResponseEntity<List<Annonce>> getAnnoncesInGroupe(@PathVariable Long groupeId) {
+    public ResponseEntity<Map<String, Object>> getAnnoncesInGroupe(@PathVariable Long groupeId) {
         Groupe groupe = groupeService.getGroupeById(groupeId);
 
+        Map<String, Object> response = new HashMap<>();
         if (groupe != null) {
-            return ResponseEntity.ok(groupe.getAnnonces());
+            response.put("status", "success");
+            response.put("data", groupe.getAnnonces());
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // Groupe not found
+            response.put("status", "fail");
+            response.put("message", "Groupe not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
+
+        return ResponseEntity.ok(response);
     }
 
     // Create a new groupe from an annonce
     @PostMapping
-    public ResponseEntity<Groupe> createGroupe(@RequestParam("annonceId") Long annonceId,
+    public ResponseEntity<Map<String, Object>> createGroupe(@RequestParam("annonceId") Long annonceId,
             Authentication authentication) {
         UserPrincipale userPrincipale = (UserPrincipale) authentication.getPrincipal();
         User user = userService.getUserById(userPrincipale.getId());
 
         Groupe groupe = groupeService.createGroupe(annonceId, user.getId());
 
+        Map<String, Object> response = new HashMap<>();
         if (groupe != null) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(groupe);
+            response.put("status", "success");
+            response.put("data", groupe);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build(); // If creation fails
+            response.put("status", "fail");
+            response.put("message", "Groupe creation failed.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
 
     // Validate a groupe
     @PostMapping("/validate")
-    public ResponseEntity<Void> validateGroupe(@RequestParam Long groupeId, Authentication authentication) {
+    public ResponseEntity<Map<String, Object>> validateGroupe(@RequestParam Long groupeId,
+            Authentication authentication) {
         UserPrincipale userDetails = (UserPrincipale) authentication.getPrincipal();
         Long achteur = userDetails.getId();
 
         Groupe isValid = groupeService.validateGroupe(groupeId, achteur);
 
+        Map<String, Object> response = new HashMap<>();
         if (isValid != null) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // Successfully validated
+            response.put("status", "success");
+            response.put("message", "Groupe validated successfully.");
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // Groupe not found
+            response.put("status", "fail");
+            response.put("message", "Groupe not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
     }
 
     // Remove an annonce from a groupe
     @DeleteMapping("/{groupeId}/annonces/{annonceId}")
-    public ResponseEntity<Void> removeAnnonceFromGroupe(@PathVariable Long groupeId, @PathVariable Long annonceId) {
+    public ResponseEntity<Map<String, Object>> removeAnnonceFromGroupe(@PathVariable Long groupeId,
+            @PathVariable Long annonceId) {
         boolean isRemoved = groupeService.removeAnnonceFromGroupe(groupeId, annonceId);
 
+        Map<String, Object> response = new HashMap<>();
         if (isRemoved) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // Successfully removed
+            response.put("status", "success");
+            response.put("message", "Annonce removed successfully.");
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // Groupe or Annonce not found
+            response.put("status", "fail");
+            response.put("message", "Groupe or Annonce not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
     }
 
     // Delete a Groupe
     @DeleteMapping("/{groupeId}")
-    public ResponseEntity<Void> deleteGroupe(@PathVariable Long groupeId, Authentication authentication) {
-        // Check if the groupe exists
+    public ResponseEntity<Map<String, Object>> deleteGroupe(@PathVariable Long groupeId,
+            Authentication authentication) {
         Groupe groupe = groupeService.getGroupeById(groupeId);
+        Map<String, Object> response = new HashMap<>();
         if (groupe == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // Groupe not found
+            response.put("status", "fail");
+            response.put("message", "Groupe not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
 
-        // Additional check: Only allow the creator (or admin) to delete the group
         UserPrincipale userPrincipale = (UserPrincipale) authentication.getPrincipal();
         User user = userService.getUserById(userPrincipale.getId());
 
         if (!groupe.getAcheteur().getId().equals(user.getId())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // Unauthorized to delete
+            response.put("status", "fail");
+            response.put("message", "Unauthorized to delete the group.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
         }
 
-        // Delete the groupe
         groupeService.deleteGroupe(groupeId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // Groupe deleted successfully
+        response.put("status", "success");
+        response.put("message", "Groupe deleted successfully.");
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
     }
 
     // Update a Groupe
     @PutMapping("/{groupeId}")
-    public ResponseEntity<Groupe> updateGroupe(
+    public ResponseEntity<Map<String, Object>> updateGroupe(
             @PathVariable Long groupeId, @RequestBody Groupe updatedGroupe, Authentication authentication) {
 
-        // Check if the groupe exists
         Groupe groupe = groupeService.getGroupeById(groupeId);
+        Map<String, Object> response = new HashMap<>();
+
         if (groupe == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // Groupe not found
+            response.put("status", "fail");
+            response.put("message", "Groupe not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
 
-        // Additional check: Only allow the creator (or admin) to update the group
         UserPrincipale userPrincipale = (UserPrincipale) authentication.getPrincipal();
         User user = userService.getUserById(userPrincipale.getId());
 
         if (!groupe.getAcheteur().getId().equals(user.getId())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // Unauthorized to update
+            response.put("status", "fail");
+            response.put("message", "Unauthorized to update the group.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
         }
 
-        // Update the groupe
         groupe.setPri(updatedGroupe.isPri());
         groupe.setCreationDate(updatedGroupe.getCreationDate());
         groupe.setValidationDate(updatedGroupe.getValidationDate());
@@ -155,6 +196,8 @@ public class GroupeApiController {
 
         groupeService.updateGroupe(groupeId, groupe);
 
-        return ResponseEntity.ok(groupe); // Return the updated groupe
+        response.put("status", "success");
+        response.put("data", groupe);
+        return ResponseEntity.ok(response);
     }
 }

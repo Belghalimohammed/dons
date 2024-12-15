@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Objects;
 
 import jakarta.persistence.*;
-import lombok.Getter;
 
 @Entity
 public class Recherche {

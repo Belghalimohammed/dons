@@ -1,8 +1,6 @@
 package com.isima.dons;
 
 import com.isima.dons.configuration.UserPrincipale;
-import com.isima.dons.entities.Annonce;
-import com.isima.dons.entities.Groupe;
 import com.isima.dons.entities.Message;
 import com.isima.dons.entities.User;
 import com.isima.dons.services.MessageService;
@@ -65,11 +63,10 @@ class MessageApiControllerTest {
         SecurityContextHolder.setContext(securityContext);
     }
 
-
     @Test
     void testGetConversations() throws Exception {
         // Mock authentication
-        User user = new User(1L, "username", "test@test.com","password");
+        User user = new User(1L, "username", "test@test.com", "password");
         UserPrincipale userPrincipale = new UserPrincipale(user);
         Authentication authentication = new UsernamePasswordAuthenticationToken(userPrincipale, null);
 
@@ -78,18 +75,15 @@ class MessageApiControllerTest {
         User mockUser = new User();
         mockUser.setId(1L);
 
-        List<Groupe> groupes = List.of(new Groupe());
-        List<Annonce> annonces = List.of(new Annonce());
-
         Mockito.when(userService.getUserById(1L)).thenReturn(mockUser);
 
         when(messageService.getConversationsByUserId(1L)).thenReturn(conversations);
 
         mockMvc.perform(get("/api/messages")
-                        .contentType(MediaType.APPLICATION_JSON).principal(authentication))
+                .contentType(MediaType.APPLICATION_JSON).principal(authentication))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2))  // Check the length of the list
-                .andExpect(jsonPath("[0].username").value("username"))  // First user in the list
+                .andExpect(jsonPath("$.length()").value(2)) // Check the length of the list
+                .andExpect(jsonPath("[0].username").value("username")) // First user in the list
                 .andExpect(jsonPath("[1].username").value("user2"));
 
     }
@@ -121,20 +115,18 @@ class MessageApiControllerTest {
 
         // Perform GET request and verify response
         mockMvc.perform(get("/api/messages/{receiverId}", 2L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .principal(authentication))
+                .contentType(MediaType.APPLICATION_JSON)
+                .principal(authentication))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2))  // Check the length of the conversation
+                .andExpect(jsonPath("$.length()").value(2)) // Check the length of the conversation
                 .andExpect(jsonPath("[0].message").value("Hello!"))
                 .andExpect(jsonPath("[1].message").value("Hi!"));
     }
 
-
-
     @Test
-    @WithMockUser(username = "test", roles = {"USER"})
+    @WithMockUser(username = "test", roles = { "USER" })
     void testCreateMessage() throws Exception {
-        User user = new User(1L, "username", "test@test.com","password");
+        User user = new User(1L, "username", "test@test.com", "password");
         UserPrincipale userPrincipale = new UserPrincipale(user);
         Authentication authentication = new UsernamePasswordAuthenticationToken(userPrincipale, null);
         // Mock data
@@ -151,16 +143,16 @@ class MessageApiControllerTest {
 
         // Perform POST request to create a message
         mockMvc.perform(post("/api/messages/{receiverId}", 2L)
-                        .param("msg", "Test message").principal(authentication)
-                        .contentType(MediaType.APPLICATION_JSON))
+                .param("msg", "Test message").principal(authentication)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Message sent successfully"));
     }
 
     @Test
-    @WithMockUser(username = "test", roles = {"USER"})
+    @WithMockUser(username = "test", roles = { "USER" })
     void testCreateMessage_receiverNotFound() throws Exception {
-        User user = new User(1L, "username", "test@test.com","password");
+        User user = new User(1L, "username", "test@test.com", "password");
         UserPrincipale userPrincipale = new UserPrincipale(user);
         Authentication authentication = new UsernamePasswordAuthenticationToken(userPrincipale, null);
         // Mock data
@@ -169,8 +161,8 @@ class MessageApiControllerTest {
 
         // Perform POST request to create a message
         mockMvc.perform(post("/api/messages/{receiverId}", 2L)
-                        .param("msg", "Test message").principal(authentication)
-                        .contentType(MediaType.APPLICATION_JSON))
+                .param("msg", "Test message").principal(authentication)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Receiver not found"));
     }

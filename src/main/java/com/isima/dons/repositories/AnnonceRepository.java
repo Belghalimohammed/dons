@@ -1,7 +1,6 @@
 package com.isima.dons.repositories;
 
 import com.isima.dons.entities.Annonce;
-import com.isima.dons.entities.Groupe;
 import com.isima.dons.entities.User;
 
 import org.springframework.data.jpa.domain.Specification;

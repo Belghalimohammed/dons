@@ -1,7 +1,6 @@
 package com.isima.dons.services.implementations;
 
 import com.isima.dons.entities.*;
-import com.isima.dons.entities.Annonce.EtatObjet;
 import com.isima.dons.repositories.AnnonceRepository;
 import com.isima.dons.repositories.AnnonceSpecification;
 import com.isima.dons.services.AnnonceService;
@@ -14,18 +13,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.data.domain.Pageable;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Vector;
-import java.util.stream.Collectors;
 
 @Service
 public class AnnonceServiceImp implements AnnonceService {
@@ -47,14 +41,13 @@ public class AnnonceServiceImp implements AnnonceService {
     }
 
     public Annonce getAnnonceById(Long id) {
-        return annonceRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Annonce not found"));
+        return annonceRepository.findById(id).orElse(null); // Returns null if not found
     }
 
     public Annonce createAnnonce(Annonce annonce, Long userId) {
 
         Annonce annonce1 = annonceRepository.save(annonce);
-        Notification notification = notificationService.pushNotification(annonce1, userId);
+        notificationService.pushNotification(annonce1, userId);
         return annonce1;
     }
 
