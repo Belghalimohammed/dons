@@ -8,11 +8,15 @@ import java.util.List;
 
 public interface NotificationService {
 
-    Notification pushNotification(Annonce annonce,Long userId);
+    Notification pushNotification(Annonce annonce, Long userId);
 
     List<Notification> getNotification(User user);
 
     Long getNotificationCountForUser(Long userId);
 
     void markNotificationsAsSeen(User user);
+
+    boolean deleteNotification(Long notificationId);
+
+    Notification getNotificationById(Long notificationId);
 }

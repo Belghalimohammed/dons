@@ -8,7 +8,8 @@ import com.isima.dons.entities.User;
 import com.isima.dons.services.GroupeService;
 import com.isima.dons.services.JwtService;
 import com.isima.dons.services.UserService;
-import com.isima.dons.services.Usersdetailservice;
+import com.isima.dons.services.implementations.Usersdetailservice;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,6 @@ import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
@@ -50,7 +50,7 @@ public class GroupeApiControllerTest {
     @Test
     void testGetAllGroupes_NotValidated() throws Exception {
         // Mock authentication
-        User user = new User(1L, "username", "test@test.com","password");
+        User user = new User(1L, "username", "test@test.com", "password");
         UserPrincipale userPrincipale = new UserPrincipale(user);
         Authentication authentication = new UsernamePasswordAuthenticationToken(userPrincipale, null);
 
@@ -72,7 +72,7 @@ public class GroupeApiControllerTest {
 
     @Test
     void testGetAllGroupes_NoContent() throws Exception {
-        User user = new User(1L, "username", "test@test.com","password");
+        User user = new User(1L, "username", "test@test.com", "password");
         UserPrincipale userPrincipale = new UserPrincipale(user);
         Authentication authentication = new UsernamePasswordAuthenticationToken(userPrincipale, null);
 
@@ -88,7 +88,7 @@ public class GroupeApiControllerTest {
 
     @Test
     void testGetValidatedGroupes() throws Exception {
-        User user = new User(1L, "username", "test@test.com","password");
+        User user = new User(1L, "username", "test@test.com", "password");
         UserPrincipale userPrincipale = new UserPrincipale(user);
         Authentication authentication = new UsernamePasswordAuthenticationToken(userPrincipale, null);
 
@@ -107,7 +107,7 @@ public class GroupeApiControllerTest {
 
     @Test
     void testCreateGroupe() throws Exception {
-        User user = new User(1L, "username", "test@test.com","password");
+        User user = new User(1L, "username", "test@test.com", "password");
         UserPrincipale userPrincipale = new UserPrincipale(user);
         Authentication authentication = new UsernamePasswordAuthenticationToken(userPrincipale, null);
 
@@ -117,8 +117,8 @@ public class GroupeApiControllerTest {
         Mockito.when(userService.getUserById(1L)).thenReturn(mockUser);
 
         mockMvc.perform(post("/api/groupes")
-                        .param("annonceId", "1")
-                        .principal(authentication))
+                .param("annonceId", "1")
+                .principal(authentication))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Groupe created successfully"));
     }
@@ -145,8 +145,8 @@ public class GroupeApiControllerTest {
 
         // Perform the test
         mockMvc.perform(post("/api/groupes/validate")
-                        .param("groupeId", "1")
-                        .principal(authentication))
+                .param("groupeId", "1")
+                .principal(authentication))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Groupe validated successfully"));
 
@@ -154,16 +154,13 @@ public class GroupeApiControllerTest {
         SecurityContextHolder.clearContext();
     }
 
-
-
-
     @Test
     void testRemoveAnnonceFromGroupe_Success() throws Exception {
         Mockito.when(groupeService.removeAnnonceFromGroupe(1L, 1L)).thenReturn(true);
 
         mockMvc.perform(delete("/api/groupes")
-                        .param("groupeId", "1")
-                        .param("annonceId", "1"))
+                .param("groupeId", "1")
+                .param("annonceId", "1"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Annonce removed from groupe successfully"));
     }
@@ -173,10 +170,9 @@ public class GroupeApiControllerTest {
         Mockito.when(groupeService.removeAnnonceFromGroupe(1L, 1L)).thenReturn(false);
 
         mockMvc.perform(delete("/api/groupes")
-                        .param("groupeId", "1")
-                        .param("annonceId", "1"))
+                .param("groupeId", "1")
+                .param("annonceId", "1"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Failed to remove annonce from groupe"));
     }
 }
-

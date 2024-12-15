@@ -51,10 +51,10 @@ public class AnnonceServiceImp implements AnnonceService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Annonce not found"));
     }
 
-    public Annonce createAnnonce(Annonce annonce,Long userId) {
+    public Annonce createAnnonce(Annonce annonce, Long userId) {
 
         Annonce annonce1 = annonceRepository.save(annonce);
-        Notification notification = notificationService.pushNotification(annonce1,userId);
+        Notification notification = notificationService.pushNotification(annonce1, userId);
         return annonce1;
     }
 
@@ -128,6 +128,14 @@ public class AnnonceServiceImp implements AnnonceService {
 
         Specification<Annonce> spec = AnnonceSpecification.searchAnnonce(key, keywordsList, etatList, zone);
         return annonceRepository.findAll(spec, pageable);
+    }
+
+    @Override
+    public List<Annonce> findAllFilteredAnnonces(String key, String zone, List<String> keywordsList,
+            List<String> etatList) {
+
+        Specification<Annonce> spec = AnnonceSpecification.searchAnnonce(key, keywordsList, etatList, zone);
+        return annonceRepository.findAll(spec);
     }
 
     @Override

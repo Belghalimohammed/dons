@@ -13,9 +13,10 @@
         th:text="${annonce.vendeur.username}"
       ></a
       >)
-      <br>
-      <i class="bi bi-geo-alt-fill"></i><span th:text="${annonce.zone}"> </span>
-      <br><br><b>Description:</b><br>
+      <br />
+      <i class="bi bi-geo-alt-fill"></i
+      ><span th:text="${annonce.zone}"> </span> <br /><br /><b>Description:</b
+      ><br />
       <p th:text="${annonce.description}"></p>
       <ul>
         <li th:each="keyword : ${annonce.keywords}" th:text="${keyword}"></li>
@@ -34,6 +35,24 @@
           class="btn btn-info me-2"
           ><i class="bi bi-shop"></i> Buy Now</a
         >
+
+        <div style="position: absolute; top: 5px; right: 5px">
+          <a
+            th:if="${favoris.contains(annonce)}"
+            th:href="@{/annonces/removefavoris/{annonceId}?oldPath={oldPath}(annonceId=${annonce.id}, oldPath=${oldPath})}"
+            class="btn btn-info me-2"
+          >
+            <i class="bi bi-heart-fill text-danger"></i>
+          </a>
+
+          <a
+            th:unless="${favoris.contains(annonce)}"
+            th:href="@{/annonces/addfavoris/{annonceId}?oldPath={oldPath}(annonceId=${annonce.id}, oldPath=${oldPath})}"
+            class="btn btn-info me-2"
+          >
+            <i class="bi bi-heart"></i>
+          </a>
+        </div>
         <form th:action="@{/groupes}" method="post">
           <input type="hidden" name="annonceId" th:value="${annonce.id}" />
           <button

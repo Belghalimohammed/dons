@@ -1,5 +1,24 @@
 <div th:if="${annonces}" class="cards-container" style="margin-top: 10px">
   <div class="card" th:each="annonce : ${annonces}">
+    <div th:if="${favoris != null}">
+      <div style="position: absolute; top: 5px; right: 5px">
+        <a
+          th:if="${favoris.contains(annonce)}"
+          th:href="@{/annonces/removefavoris/{annonceId}?oldPath={oldPath}(annonceId=${annonce.id}, oldPath=${oldPath})}"
+          class="btn btn-info me-2"
+        >
+          <i class="bi bi-heart-fill text-danger"></i>
+        </a>
+
+        <a
+          th:unless="${favoris.contains(annonce)}"
+          th:href="@{/annonces/addfavoris/{annonceId}?oldPath={oldPath}(annonceId=${annonce.id}, oldPath=${oldPath})}"
+          class="btn btn-info me-2"
+        >
+          <i class="bi bi-heart"></i>
+        </a>
+      </div>
+    </div>
     <div class="container">
       <h2><b th:text="${annonce.titre}"></b></h2>
       ( <b th:text="${annonce.vendeur.username}"></b> )

@@ -1,10 +1,16 @@
 package com.isima.dons.services.implementations;
 
+import com.isima.dons.entities.Annonce;
 import com.isima.dons.entities.User;
+import com.isima.dons.repositories.AnnonceRepository;
 import com.isima.dons.repositories.UserRepository;
+import com.isima.dons.services.JwtService;
 import com.isima.dons.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -16,6 +22,15 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private AnnonceRepository annonceRepository;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private JwtService jwtservice;
 
     @Override
     public List<User> getAllUsers() {
@@ -30,6 +45,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User createUser(User user) {
+        // Check if the user already exists by username or other unique field
+        if (userRepository.existsByUsername(user.getUsername())) {
+            return null; // Return null if the user already exists
+        }
+
+        // Otherwise, save and return the new user
         return userRepository.save(user);
     }
 
@@ -65,5 +86,42 @@ public class UserServiceImpl implements UserService {
         } else {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
         }
+    }
+
+    @Override
+    public User addFavorisToUserUser(long id, Long annonceId) {
+        Optional<User> userOptional = userRepository.findById(id);
+        Optional<Annonce> annonceOptional = annonceRepository.findById(annonceId);
+        if (userOptional.isPresent() && annonceOptional.isPresent()) {
+            userOptional.get().addFavoris(annonceOptional.get());
+
+            return userRepository.save(userOptional.get());
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+    }
+
+    @Override
+    public User removeFavorisToUserUser(long id, Long annonceId) {
+        Optional<User> userOptional = userRepository.findById(id);
+        Optional<Annonce> annonceOptional = annonceRepository.findById(annonceId);
+        if (userOptional.isPresent() && annonceOptional.isPresent()) {
+            userOptional.get().removeFavoris(annonceOptional.get());
+
+            return userRepository.save(userOptional.get());
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+    }
+
+    @Override
+    public String verify(User user) {
+        Authentication authentication = authenticationManager
+                .authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+
+        if (authentication.isAuthenticated()) {
+            return jwtservice.generateToken(user.getUsername());
+        }
+        return "nope";
     }
 }

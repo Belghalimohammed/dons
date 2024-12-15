@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,7 +36,8 @@ public class NotificationServiceImp implements NotificationService {
         User user = userService.getUserById(userId);
         Notification notification = new Notification();
         notification.setAnnonce(annonce);
-        notification.setContent("une nouvelle annonce a été créée par " + annonce.getVendeur().getUsername() + ": " + annonce.getTitre());
+        notification.setContent("une nouvelle annonce a été créée par " + annonce.getVendeur().getUsername() + ": "
+                + annonce.getTitre());
         notification.setDate(new Date());
 
         // Get the users concerned by the notification
@@ -58,14 +60,12 @@ public class NotificationServiceImp implements NotificationService {
         // Set the NotificationUser list to the Notification
         notification.setNotificationUsers(notificationUsers);
 
-        // Save the notification (this will also save the associated NotificationUser entities)
+        // Save the notification (this will also save the associated NotificationUser
+        // entities)
         return notificationRepository.save(notification);
     }
 
-
-
-
-    public List<Notification> getNotification(User user){
+    public List<Notification> getNotification(User user) {
         System.out.println(user.getUsername());
         List<Notification> notifications = notificationRepository.findNotificationByUser(user);
         System.out.println(notifications);
@@ -84,5 +84,20 @@ public class NotificationServiceImp implements NotificationService {
             notificationUser.setSeen(true);
         }
         notificationUserRepository.saveAll(notificationUsers);
+    }
+
+    @Override
+    public boolean deleteNotification(Long notificationId) {
+        Optional<Notification> notification = notificationRepository.findById(notificationId);
+        if (notification.isPresent()) {
+            notificationRepository.delete(notification.get());
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Notification getNotificationById(Long notificationId) {
+        return notificationRepository.findById(notificationId).orElse(null); // Return null if not found
     }
 }

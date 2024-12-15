@@ -16,8 +16,13 @@ public interface UserService {
     User createUser(User user);
 
     User updateUser(Long id, User updatedUser);
-   
-    
+
+    String verify(User user);
+
+    User addFavorisToUserUser(long id, Long annonceId);
+
+    User removeFavorisToUserUser(long id, Long annonceId);
+
     void deleteUser(Long id);
 
     User login(String email, String password); // New method for login

@@ -77,14 +77,15 @@ public class AnnonceWebController {
 
         String[] attributes = { "neuf", "commeNeuf", "tresBonEtat", "bonEtat", "etatCorrect", "occasion" };
         List<String> etatList = new ArrayList<>();
+        UserPrincipale userPrincipale = (UserPrincipale) authentication.getPrincipal();
+        User user = userService.getUserById(userPrincipale.getId());
+
         for (String attribute : attributes) {
             if (Boolean.parseBoolean((String) session.getAttribute(attribute))) {
                 etatList.add(attribute);
             }
         }
         if (addkeyword == null) {
-            UserPrincipale userPrincipale = (UserPrincipale) authentication.getPrincipal();
-            User user = userService.getUserById(userPrincipale.getId());
             Recherche rch = new Recherche();
             rch.setEtatObjetList(etatList);
             rch.setKeywordsList(items);
@@ -111,13 +112,15 @@ public class AnnonceWebController {
         model.addAttribute("annonces", annonces);
         model.addAttribute("oldPath", request.getRequestURI());
         model.addAttribute("content", "pages/dashboard");
+        model.addAttribute("favoris", user.getFavoris());
+
         model.addAttribute("filters", "fragments/filters");
         session.setAttribute("model", model);
         return "home";
     }
 
     @GetMapping("/add")
-    public String addAnnoce(Model model,HttpSession session) {
+    public String addAnnoce(Model model, HttpSession session) {
         List<String> zones = annonceService.findDistinctZones();
         model.addAttribute("zones", zones);
         model.addAttribute("content", "pages/annonces/add-annonce");
@@ -179,7 +182,7 @@ public class AnnonceWebController {
         annonce.setVendeur(userService.getUserById(userDetails.getId()));
         System.out.println(annonce.getKeywords());
         annonce.setKeywords(Arrays.asList(annonce.getKeywords().get(0).split(" ")));
-        annonceService.createAnnonce(annonce,userDetails.getId());
+        annonceService.createAnnonce(annonce, userDetails.getId());
 
         return "redirect:/annonces/mes-annonces";
     }
@@ -213,6 +216,37 @@ public class AnnonceWebController {
         User user = userService.getUserById(userPrincipale.getId());
         annonceService.addAcheteurAndMarkAsPri(annonceId, user);
         return "redirect:" + oldPath; // Redirect to the annonce list or another appropriate view
+    }
+
+    @GetMapping("/addfavoris/{annonceId}")
+    public String addFavoris(@PathVariable Long annonceId,
+            @RequestParam(value = "oldPath", required = false, defaultValue = "/") String oldPath,
+            Authentication authentication) {
+        UserPrincipale userPrincipale = (UserPrincipale) authentication.getPrincipal();
+        userService.addFavorisToUserUser(userPrincipale.getId(), annonceId);
+        return "redirect:" + oldPath; // Redirect to the annonce list or another appropriate view
+    }
+
+    @GetMapping("/removefavoris/{annonceId}")
+    public String removeFavoris(@PathVariable Long annonceId,
+            @RequestParam(value = "oldPath", required = false, defaultValue = "/") String oldPath,
+            Authentication authentication) {
+        UserPrincipale userPrincipale = (UserPrincipale) authentication.getPrincipal();
+        userService.removeFavorisToUserUser(userPrincipale.getId(), annonceId);
+        return "redirect:" + oldPath; // Redirect to the annonce list or another appropriate view
+    }
+
+    @GetMapping("/favoris")
+    public String listFavoris(Authentication authentication, Model model, HttpServletRequest request) {
+        UserPrincipale userPrincipale = (UserPrincipale) authentication.getPrincipal();
+        User user = userService.getUserById(userPrincipale.getId());
+        System.out.println("///////////////////////////////////////////////" + request.getRequestURI());
+        model.addAttribute("favoris", user.getFavoris());
+        model.addAttribute("oldPath", request.getRequestURI());
+
+        model.addAttribute("annonces", user.getFavoris());
+        model.addAttribute("content", "pages/annonces/mes-annonces");
+        return "home";
     }
 
 }

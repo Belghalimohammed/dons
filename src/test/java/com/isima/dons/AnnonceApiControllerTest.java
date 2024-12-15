@@ -7,7 +7,7 @@ import com.isima.dons.entities.User;
 import com.isima.dons.services.AnnonceService;
 import com.isima.dons.services.JwtService;
 import com.isima.dons.services.UserService;
-import com.isima.dons.services.Usersdetailservice;
+import com.isima.dons.services.implementations.Usersdetailservice;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -38,152 +38,150 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 class AnnonceApiControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+        @Autowired
+        private MockMvc mockMvc;
 
-    @MockBean
-    private AnnonceService annonceService;
+        @MockBean
+        private AnnonceService annonceService;
 
-    @MockBean
-    private UserService userService;
+        @MockBean
+        private UserService userService;
 
-    @MockBean // Add this line to mock JwtService
-    private JwtService jwtService;
+        @MockBean // Add this line to mock JwtService
+        private JwtService jwtService;
 
-    @MockBean // Mock Usersdetailservice here
-    private Usersdetailservice usersdetailservice;
+        @MockBean // Mock Usersdetailservice here
+        private Usersdetailservice usersdetailservice;
 
-    @Test
-    @WithMockUser(username = "test", roles = {"USER"})
-    void testGetAllAnnonces() throws Exception {
-        // Mock data
-        Annonce annonce1 = new Annonce();
-        annonce1.setId(1L);
-        annonce1.setTitre("Annonce 1");
+        @Test
+        @WithMockUser(username = "test", roles = { "USER" })
+        void testGetAllAnnonces() throws Exception {
+                // Mock data
+                Annonce annonce1 = new Annonce();
+                annonce1.setId(1L);
+                annonce1.setTitre("Annonce 1");
 
-        Annonce annonce2 = new Annonce();
-        annonce2.setId(2L);
-        annonce2.setTitre("Annonce 2");
+                Annonce annonce2 = new Annonce();
+                annonce2.setId(2L);
+                annonce2.setTitre("Annonce 2");
 
-        List<Annonce> annonces = Arrays.asList(annonce1, annonce2);
+                List<Annonce> annonces = Arrays.asList(annonce1, annonce2);
 
-        // Mock service call
-        when(annonceService.getAllAnnonces()).thenReturn(annonces);
+                // Mock service call
+                when(annonceService.getAllAnnonces()).thenReturn(annonces);
 
-        // Perform GET request and verify response
-        mockMvc.perform(get("/api/annonces")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2))  // Check the length of the list
-                .andExpect(jsonPath("[0].titre").value("Annonce 1"))  // First item in the list
-                .andExpect(jsonPath("[1].titre").value("Annonce 2"));  // Second item in the list
-    }
+                // Perform GET request and verify response
+                mockMvc.perform(get("/api/annonces")
+                                .contentType(MediaType.APPLICATION_JSON))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.length()").value(2)) // Check the length of the list
+                                .andExpect(jsonPath("[0].titre").value("Annonce 1")) // First item in the list
+                                .andExpect(jsonPath("[1].titre").value("Annonce 2")); // Second item in the list
+        }
 
+        @Test
+        @WithMockUser(username = "test", roles = { "USER" })
+        void testGetAnnonceById() throws Exception {
+                // Mock data
+                Annonce annonce = new Annonce();
+                annonce.setId(1L);
+                annonce.setTitre("Annonce 1");
 
+                // Mock service call
+                when(annonceService.getAnnonceById(1L)).thenReturn(annonce);
 
-    @Test
-    @WithMockUser(username = "test", roles = {"USER"})
-    void testGetAnnonceById() throws Exception {
-        // Mock data
-        Annonce annonce = new Annonce();
-        annonce.setId(1L);
-        annonce.setTitre("Annonce 1");
+                // Perform GET request and verify response
+                mockMvc.perform(get("/api/annonces/1")
+                                .contentType(MediaType.APPLICATION_JSON))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.titre").value("Annonce 1"));
+        }
 
-        // Mock service call
-        when(annonceService.getAnnonceById(1L)).thenReturn(annonce);
+        @BeforeEach
+        public void setup() {
+                // Mock de SecurityContextHolder pour l'authentification
+                User user = new User(1L, "username", "test@test.com", "password");
+                UserPrincipale userPrincipale = new UserPrincipale(user);
+                Authentication authentication = Mockito.mock(Authentication.class);
+                SecurityContext securityContext = Mockito.mock(SecurityContext.class);
 
-        // Perform GET request and verify response
-        mockMvc.perform(get("/api/annonces/1")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.titre").value("Annonce 1"));
-    }
+                Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
+                Mockito.when(authentication.getPrincipal()).thenReturn(userPrincipale);
 
-    @BeforeEach
-    public void setup() {
-        // Mock de SecurityContextHolder pour l'authentification
-        User user = new User(1L, "username", "test@test.com","password");
-        UserPrincipale userPrincipale = new UserPrincipale(user);
-        Authentication authentication = Mockito.mock(Authentication.class);
-        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+                SecurityContextHolder.setContext(securityContext);
+        }
 
-        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
-        Mockito.when(authentication.getPrincipal()).thenReturn(userPrincipale);
+        @Test
+        void testCreateAnnonce() throws Exception {
+                // Mocking a user
+                User user = new User(1L, "username", "test@test.com", "password");
+                UserPrincipale userPrincipale = new UserPrincipale(user);
+                Authentication authentication = new UsernamePasswordAuthenticationToken(userPrincipale, null);
 
-        SecurityContextHolder.setContext(securityContext);
-    }
+                // Mocking dependencies
+                Annonce annonce = new Annonce();
+                annonce.setTitre("Titre de test");
+                annonce.setDescription("Description de test");
+                annonce.setEtatObjet(Annonce.EtatObjet.Neuf);
+                annonce.setKeywords(Arrays.asList("test", "annonce"));
 
-    @Test
-    void testCreateAnnonce() throws Exception {
-        // Mocking a user
-        User user = new User(1L, "username", "test@test.com", "password");
-        UserPrincipale userPrincipale = new UserPrincipale(user);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userPrincipale, null);
+                // Mock the service call
+                Mockito.when(annonceService.createAnnonce(Mockito.any(Annonce.class), Mockito.eq(user.getId())))
+                                .thenReturn(annonce);
 
-        // Mocking dependencies
-        Annonce annonce = new Annonce();
-        annonce.setTitre("Titre de test");
-        annonce.setDescription("Description de test");
-        annonce.setEtatObjet(Annonce.EtatObjet.Neuf);
-        annonce.setKeywords(Arrays.asList("test", "annonce"));
+                // Perform the test
+                mockMvc.perform(post("/api/annonces")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(new ObjectMapper().writeValueAsString(annonce)))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.titre").value("Titre de test"))
+                                .andExpect(jsonPath("$.description").value("Description de test"))
+                                .andExpect(jsonPath("$.etatObjet").value("Neuf"))
+                                .andExpect(jsonPath("$.keywords[0]").value("test"))
+                                .andExpect(jsonPath("$.keywords[1]").value("annonce"));
+        }
 
-        // Mock the service call
-        Mockito.when(annonceService.createAnnonce(Mockito.any(Annonce.class), Mockito.eq(user.getId())))
-                .thenReturn(annonce);
+        @Test
+        void updateAnnonce_shouldReturnUpdatedAnnonce() throws Exception {
+                Long annonceId = 1L;
 
-        // Perform the test
-        mockMvc.perform(post("/api/annonces")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(annonce)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.titre").value("Titre de test"))
-                .andExpect(jsonPath("$.description").value("Description de test"))
-                .andExpect(jsonPath("$.etatObjet").value("Neuf"))
-                .andExpect(jsonPath("$.keywords[0]").value("test"))
-                .andExpect(jsonPath("$.keywords[1]").value("annonce"));
-    }
+                // Existing Annonce mock
+                Annonce existingAnnonce = new Annonce();
+                existingAnnonce.setId(annonceId);
+                existingAnnonce.setDatePublication(LocalDate.now());
+                existingAnnonce.setVendeur(new User());
+                existingAnnonce.setKeywords(List.of("existing", "keywords"));
 
-    @Test
-    void updateAnnonce_shouldReturnUpdatedAnnonce() throws Exception {
-        Long annonceId = 1L;
+                // Updated Annonce mock
+                Annonce updatedAnnonce = new Annonce();
+                updatedAnnonce.setTitre("Updated Title");
+                updatedAnnonce.setDescription("Updated Description");
+                updatedAnnonce.setKeywords(List.of("updated", "keywords"));
 
-        // Existing Annonce mock
-        Annonce existingAnnonce = new Annonce();
-        existingAnnonce.setId(annonceId);
-        existingAnnonce.setDatePublication(LocalDate.now());
-        existingAnnonce.setVendeur(new User());
-        existingAnnonce.setKeywords(List.of("existing", "keywords"));
+                // Mocking service behavior
+                Mockito.when(annonceService.getAnnonceById(annonceId)).thenReturn(existingAnnonce);
+                Mockito.when(annonceService.updateAnnonce(Mockito.eq(annonceId), Mockito.any(Annonce.class)))
+                                .thenReturn(updatedAnnonce);
 
-        // Updated Annonce mock
-        Annonce updatedAnnonce = new Annonce();
-        updatedAnnonce.setTitre("Updated Title");
-        updatedAnnonce.setDescription("Updated Description");
-        updatedAnnonce.setKeywords(List.of("updated","keywords"));
+                // Request body for the update
+                String updatedAnnonceJson = "{" +
+                                "\"titre\": \"Updated Title\"," +
+                                "\"description\": \"Updated Description\"," +
+                                "\"keywords\": [\"updated keywords\"]" +
+                                "}";
 
-        // Mocking service behavior
-        Mockito.when(annonceService.getAnnonceById(annonceId)).thenReturn(existingAnnonce);
-        Mockito.when(annonceService.updateAnnonce(Mockito.eq(annonceId), Mockito.any(Annonce.class)))
-                .thenReturn(updatedAnnonce);
+                mockMvc.perform(MockMvcRequestBuilders.put("/api/annonces/{id}", annonceId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(updatedAnnonceJson))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.titre").value("Updated Title"))
+                                .andExpect(jsonPath("$.description").value("Updated Description"))
+                                .andExpect(jsonPath("$.keywords[0]").value("updated"))
+                                .andExpect(jsonPath("$.keywords[1]").value("keywords"));
 
-        // Request body for the update
-        String updatedAnnonceJson = "{" +
-                "\"titre\": \"Updated Title\"," +
-                "\"description\": \"Updated Description\"," +
-                "\"keywords\": [\"updated keywords\"]" +
-                "}";
-
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/annonces/{id}", annonceId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(updatedAnnonceJson))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.titre").value("Updated Title"))
-                .andExpect(jsonPath("$.description").value("Updated Description"))
-                .andExpect(jsonPath("$.keywords[0]").value("updated"))
-                .andExpect(jsonPath("$.keywords[1]").value("keywords"));
-
-        // Verify service calls
-        Mockito.verify(annonceService).getAnnonceById(annonceId);
-        Mockito.verify(annonceService).updateAnnonce(Mockito.eq(annonceId), Mockito.any(Annonce.class));
-    }
+                // Verify service calls
+                Mockito.verify(annonceService).getAnnonceById(annonceId);
+                Mockito.verify(annonceService).updateAnnonce(Mockito.eq(annonceId), Mockito.any(Annonce.class));
+        }
 
 }

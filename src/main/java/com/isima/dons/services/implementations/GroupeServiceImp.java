@@ -107,7 +107,6 @@ public class GroupeServiceImp implements GroupeService {
         }
     }
 
-
     @Override
     public Groupe updateGroupe(Long id, Groupe updatedGroupe) {
         Optional<Groupe> groupeOptional = groupeRepository.findById(id);
@@ -154,7 +153,7 @@ public class GroupeServiceImp implements GroupeService {
                 // Save the updated Groupe
                 groupeRepository.save(groupe);
             }
-            if(groupe.getAnnonces().isEmpty()){
+            if (groupe.getAnnonces().isEmpty()) {
                 groupeRepository.deleteById(groupe.getId());
             }
             return isRemoved;
@@ -164,7 +163,7 @@ public class GroupeServiceImp implements GroupeService {
     }
 
     @Override
-    public Groupe validateGroupe(Long groupeId,Long achteur) {
+    public Groupe validateGroupe(Long groupeId, Long achteur) {
         Groupe groupe = getGroupeById(groupeId);
         User user = userService.getUserById(achteur);
 

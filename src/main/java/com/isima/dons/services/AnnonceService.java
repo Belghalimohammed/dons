@@ -28,7 +28,7 @@ public interface AnnonceService {
 
     List<Annonce> getAnnoncesByAcheteur(User acheteur);
 
-    Annonce createAnnonce(Annonce annonce,Long userId);
+    Annonce createAnnonce(Annonce annonce, Long userId);
 
     Annonce updateAnnonce(Long id, Annonce updatedAnnonce);
 
@@ -38,4 +38,6 @@ public interface AnnonceService {
             int page);
 
     Long findFilteredAnnoncesCount(String key, String zone, List<String> keywordsList, List<String> etatList);
+
+    List<Annonce> findAllFilteredAnnonces(String key, String zone, List<String> keywordsList, List<String> etatList);
 }

@@ -1,5 +1,8 @@
 package com.isima.dons.entities;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -17,11 +20,15 @@ public class User {
     private String email;
     private String password;
 
+    @OneToMany
+    private List<Annonce> favoris;
+
     public User(Long id, String username, String email, String password) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.password = password;
+        this.favoris = new ArrayList<>();
     }
 
     public User(Long id) {
@@ -30,6 +37,18 @@ public class User {
 
     public User() {
 
+    }
+
+    public void setFavoris(List<Annonce> annoces) {
+        this.favoris = annoces;
+    }
+
+    public void addFavoris(Annonce annonce) {
+        this.favoris.add(annonce);
+    }
+
+    public void removeFavoris(Annonce annonce) {
+        this.favoris.remove(annonce);
     }
 
     public void setId(Long id) {
@@ -48,27 +67,25 @@ public class User {
         this.password = password;
     }
 
-	public Long getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public String getUsername() {
-		return username;
-	}
+    public String getUsername() {
+        return username;
+    }
 
-	public String getEmail() {
-		return email;
-	}
+    public String getEmail() {
+        return email;
+    }
 
-	public String getPassword() {
-		return password;
-	}
+    public String getPassword() {
+        return password;
+    }
 
-	@Override
-	public String toString() {
-		return "User [id=" + id + ", username=" + username + ", email=" + email + ", password=" + password + "]";
-	}
-    
-    
+    @Override
+    public String toString() {
+        return "User [id=" + id + ", username=" + username + ", email=" + email + ", password=" + password + "]";
+    }
+
 }
-

@@ -1,7 +1,7 @@
 package com.isima.dons.filters;
 
 import com.isima.dons.services.JwtService;
-import com.isima.dons.services.Usersdetailservice;
+import com.isima.dons.services.implementations.Usersdetailservice;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,41 +17,42 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-
 @Component
-public class JwtFilter extends OncePerRequestFilter{
+public class JwtFilter extends OncePerRequestFilter {
 
 	@Autowired
 	private JwtService jwtService;
-	
+
 	@Autowired
 	ApplicationContext cntx;
-	
+
 	@Autowired
 	Usersdetailservice myuserdetail;
-	
+
 	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)	throws ServletException, IOException {
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+			throws ServletException, IOException {
 		String authHeader = request.getHeader("Authorization");
 		String token = null;
 		String username = null;
 
-			if(authHeader != null  && authHeader.startsWith("Bearer ")) {
-				token = authHeader.substring(7);;
-				username = jwtService.extractUsernameFromToken(token);
+		if (authHeader != null && authHeader.startsWith("Bearer ")) {
+			token = authHeader.substring(7);
+			;
+			username = jwtService.extractUsernameFromToken(token);
+		}
+
+		if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+			UserDetails userdetails = cntx.getBean(Usersdetailservice.class).loadUserByUsername(username);
+			if (jwtService.validateToken(token, userdetails)) {
+				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+						userdetails, null, userdetails.getAuthorities());
+				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+				SecurityContextHolder.getContext().setAuthentication(authentication);
 			}
-			
-			
-			if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-			    UserDetails userdetails = cntx.getBean(Usersdetailservice.class).loadUserByUsername(username);
-			    if (jwtService.validateToken(token, userdetails)) {
-			        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userdetails, null, userdetails.getAuthorities());
-			        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-			        SecurityContextHolder.getContext().setAuthentication(authentication);
-			    }
-			}
-			
+		}
+
 		filterChain.doFilter(request, response);
 	}
-	
+
 }

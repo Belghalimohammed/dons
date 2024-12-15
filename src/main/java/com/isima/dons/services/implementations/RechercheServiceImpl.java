@@ -84,6 +84,6 @@ public class RechercheServiceImpl implements RechercheService {
 
     @Override
     public List<Recherche> getRechercheByAnnonce(Annonce annonce) {
-        return rechercheRepository.findByAnnonce(annonce.getTitre(), annonce.getKeywords(),annonce.getZone());
+        return rechercheRepository.findByAnnonce(annonce.getTitre(), annonce.getKeywords(), annonce.getZone());
     }
 }

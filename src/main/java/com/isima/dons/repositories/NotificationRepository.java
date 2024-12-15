@@ -11,14 +11,13 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface NotificationRepository extends JpaRepository<Notification, Long>, JpaSpecificationExecutor<Notification> {
+public interface NotificationRepository
+        extends JpaRepository<Notification, Long>, JpaSpecificationExecutor<Notification> {
 
     @Query("SELECT n FROM Notification n JOIN n.notificationUsers nu WHERE nu.user = :user")
     List<Notification> findNotificationByUser(@Param("user") User user);
 
-
     @Query("SELECT COUNT(n) FROM Notification n JOIN n.notificationUsers nu WHERE nu.user.id = :userId and nu.seen=false")
     long countByUsers_Id(@Param("userId") Long userId);
-
 
 }

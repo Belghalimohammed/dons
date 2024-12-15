@@ -17,7 +17,8 @@ public class JwtService {
     private final String key;
 
     public JwtService() {
-        this.key = Base64.getEncoder().encodeToString(Keys.secretKeyFor(io.jsonwebtoken.SignatureAlgorithm.HS256).getEncoded());
+        this.key = Base64.getEncoder()
+                .encodeToString(Keys.secretKeyFor(io.jsonwebtoken.SignatureAlgorithm.HS256).getEncoded());
     }
 
     public Key getkey() {
@@ -35,7 +36,7 @@ public class JwtService {
     }
 
     public String extractUsernameFromToken(String token) {
-    	try {
+        try {
             System.out.println("Token: " + token);
             Claims claims = extractAllClaims(token);
             return claims.getSubject();
@@ -44,7 +45,6 @@ public class JwtService {
             return null;
         }
     }
-    
 
     public boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsernameFromToken(token);

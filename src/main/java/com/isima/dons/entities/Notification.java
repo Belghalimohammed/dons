@@ -26,7 +26,8 @@ public class Notification {
     private String content;
 
     // Constructors
-    public Notification() {}
+    public Notification() {
+    }
 
     public Notification(Annonce annonce, List<NotificationUser> notificationUsers, Date date, String content) {
         this.annonce = annonce;
